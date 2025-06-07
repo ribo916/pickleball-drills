@@ -11,6 +11,18 @@ This SvelteKit app visualizes pickleball drills using a 3D court rendered with T
 npm install
 ```
 
+### 🖼 Required Texture Files
+The following texture files are required but not included in the repository due to size:
+- `static/textures/court-surface.png`
+- `static/textures/green-border-texture.png`
+- `static/textures/pickleball-bump.png`
+- `static/textures/net-grid.png`
+
+You'll need to add these files to the `static/textures/` directory before running the app. These textures are used for:
+- Court surface and border appearance
+- Ball texture and bump mapping
+- Net visualization
+
 ### ▶ Run Locally
 ```bash
 npm run dev
@@ -116,4 +128,4 @@ export const myDrill = {
 
 ---
 
-Ready to add autoplay, camera transitions, or textures? Let’s go.
+Ready to add autoplay, camera transitions, or textures? Let's go.
