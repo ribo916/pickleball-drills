@@ -23,12 +23,21 @@ Visit: [http://localhost:5173](http://localhost:5173)
 npm run build
 ```
 
-### 🔎 Preview Production
+### 🔎 Preview Production Build
 ```bash
 npm run preview
 ```
 
-> To deploy to Vercel or another platform, install a [SvelteKit adapter](https://kit.svelte.dev/docs/adapters).
+### 🚀 Deployment
+This project uses `@sveltejs/adapter-node` for production builds, configured for Node.js environments (like Render.com). This only affects production builds and deployment - local development remains unchanged.
+
+To deploy:
+1. Build the project: `npm run build`
+2. Start the server: `node build/index.js`
+
+The build output will be in the `build` directory.
+
+> Note: If deploying to a different platform, you may need to switch adapters. See [SvelteKit adapters](https://kit.svelte.dev/docs/adapters) for more information.
 
 ---
 
@@ -115,5 +124,3 @@ export const myDrill = {
 5. Optionally: create a dropdown or drill selector in the UI
 
 ---
-
-Ready to add autoplay, camera transitions, or textures? Let's go.
