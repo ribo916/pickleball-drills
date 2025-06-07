@@ -29,15 +29,14 @@ npm run preview
 ```
 
 ### 🚀 Deployment
-This project uses `@sveltejs/adapter-node` for production builds, configured for Node.js environments (like Render.com). This only affects production builds and deployment - local development remains unchanged.
+This project uses `@sveltejs/adapter-auto` for production builds, which automatically detects and optimizes for the deployment platform (like Vercel). This configuration enables serverless deployment.
 
-To deploy:
-1. Build the project: `npm run build`
-2. Start the server: `node build/index.js`
+To deploy to Vercel:
+1. Connect your GitHub repository to Vercel
+2. Vercel will automatically detect the SvelteKit project
+3. Deploy with default settings
 
-The build output will be in the `build` directory.
-
-> Note: If deploying to a different platform, you may need to switch adapters. See [SvelteKit adapters](https://kit.svelte.dev/docs/adapters) for more information.
+> Note: The project is configured for serverless deployment. If deploying to a different platform, you may need to switch adapters. See [SvelteKit adapters](https://kit.svelte.dev/docs/adapters) for more information.
 
 ---
 
