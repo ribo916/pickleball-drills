@@ -37,6 +37,37 @@ function createDrillsStore() {
         set({ drills: [], categories: {}, types: {} });
       }
     },
+    saveDrill: (drill: Drill) => {
+      update(data => {
+        if (!data) return data;
+        
+        const index = data.drills.findIndex(d => d.id === drill.id);
+        if (index !== -1) {
+          // Update existing drill
+          data.drills[index] = drill;
+        } else {
+          // Add new drill
+          data.drills.push(drill);
+        }
+        return data;
+      });
+    },
+    deleteDrill: (drillId: string) => {
+      update(data => {
+        if (!data) return data;
+        data.drills = data.drills.filter(d => d.id !== drillId);
+        return data;
+      });
+    },
+    getDrillById: (drillId: string) => {
+      let drill: Drill | null = null;
+      subscribe(data => {
+        if (data) {
+          drill = data.drills.find(d => d.id === drillId) || null;
+        }
+      })();
+      return drill;
+    },
     getDrills: () => {
       let drills: Drill[] = [];
       subscribe(data => {

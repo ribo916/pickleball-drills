@@ -57,15 +57,35 @@ src/
 
 ## 🚦 Court Coordinate System (DO NOT BREAK)
 
-- Origin `(x = 0, z = 0)` is the center of the net
-- Court is **44 ft long × 20 ft wide**
-- `+z` is the far side, `-z` is the near side
-- Court boundaries:
-  - `z = -22` to `+22`
-  - `x = -10` to `+10`
-- Kitchen (non-volley) zones:
-  - `z = -7` to `0` (near side)
-  - `z = 0` to `+7` (far side)
+The coordinate system consists of two parts:
+
+### 1. Playable Area Grid
+- Uses chess notation (A-O for columns, 2-24 for rows)
+- Each cell is 2ft × 2ft
+- Playable area extends beyond court boundaries:
+  - Width: 30ft (A-O)
+  - Length: 46ft (2-24)
+- Players can be positioned anywhere in the playable area
+
+### 2. Court (subset of playable area)
+- Court boundaries in chess notation:
+  - Near baseline: C2-M2
+  - Far baseline: C24-M24
+  - Left sideline: C2-C24
+  - Right sideline: M2-M24
+  - Net: C13-M13
+  - Kitchen lines: C10-M10 and C16-M16
+- Court dimensions:
+  - Width: 20ft (C-M)
+  - Length: 44ft (2-24)
+  - Kitchen zones: 7ft from net
+
+### Coordinate System
+- Origin (x=0, z=0) is at the net (C13-M13)
+- x-axis: Positive is right, negative is left
+- z-axis: Positive is far side, negative is near side
+- Players can be positioned outside court boundaries
+- All coordinates are in feet
 
 ---
 
