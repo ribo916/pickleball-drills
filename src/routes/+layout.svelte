@@ -44,6 +44,14 @@
     <span class="hamburger"></span>
   </button>
   <h1>Pickleball Drills</h1>
+  <div class="nav-buttons">
+    <a href="/" class="nav-button" aria-label="Home">
+      🏠
+    </a>
+    <a href="/configure" class="nav-button" aria-label="Configure drills">
+      ⚙️
+    </a>
+  </div>
 </div>
 
 {#if showMenu}
@@ -99,21 +107,33 @@
 <slot />
 
 <style>
+  :global(body) {
+    margin: 0;
+    padding: 0;
+    background: #1a1a1a;
+    min-height: 100vh;
+  }
+
+  :global(#svelte) {
+    min-height: 100vh;
+    background: #1a1a1a;
+  }
+
   .title-bar {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    height: 56px;
-    background: #1a1a1a;
-    color: white;
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 0 16px;
-    z-index: 1000;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    padding: 8px 20px;
+    background: #1a1a1a;
+    color: white;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    height: 48px;
+    box-sizing: border-box;
+    z-index: 1000;
   }
 
   .menu-button {
@@ -279,5 +299,28 @@
     .drill-meta {
       gap: 12px;
     }
+  }
+
+  .nav-buttons {
+    margin-left: auto;
+    display: flex;
+    gap: 12px;
+  }
+
+  .nav-button {
+    font-size: 1.5em;
+    text-decoration: none;
+    color: white;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+
+  .nav-button:hover {
+    opacity: 1;
+  }
+
+  :global(main) {
+    padding-top: 48px;
+    min-height: calc(100vh - 48px);
   }
 </style> 
