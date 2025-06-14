@@ -1,0 +1,118 @@
+{
+  "drills": [
+    {
+      "id": "first-three-shots",
+      "name": "First 3 Shots",
+      "description": "Practice the essential first three shots of pickleball: serve, return, and third shot drop.",
+      "category": "fundamentals",
+      "type": "third-shot",
+      "players": 4,
+      "difficulty": "beginner",
+      "goal": "Master the three most important shots in pickleball: consistent serve, deep return, and controlled third shot drop.",
+      "steps": [
+        {
+          "note": "Serve",
+          "players": [
+            { "id": "P1", "x": -5, "z": -20 },
+            { "id": "P2", "x": 5, "z": -20 },
+            { "id": "P3", "x": -5, "z": 20 },
+            { "id": "P4", "x": 5, "z": 20 }
+          ],
+          "ball": { "x": -5, "z": -20 }
+        },
+        {
+          "note": "Return",
+          "players": [
+            { "id": "P1", "x": -5, "z": -20 },
+            { "id": "P2", "x": 5, "z": -20 },
+            { "id": "P3", "x": -5, "z": 20 },
+            { "id": "P4", "x": 5, "z": 20 }
+          ],
+          "ball": { "x": 5, "z": 20 }
+        },
+        {
+          "note": "Third Shot Drop",
+          "players": [
+            { "id": "P1", "x": -5, "z": -10 },
+            { "id": "P2", "x": 5, "z": -10 },
+            { "id": "P3", "x": -5, "z": 20 },
+            { "id": "P4", "x": 5, "z": 20 }
+          ],
+          "ball": { "x": -5, "z": -10 }
+        }
+      ]
+    },
+    {
+      "id": "dinking-rally",
+      "name": "Dinking Rally",
+      "description": "Practice controlled dinking exchanges at the kitchen line.",
+      "category": "kitchen",
+      "type": "dinking",
+      "players": 2,
+      "difficulty": "intermediate",
+      "goal": "Develop soft hands and consistent dinking technique while maintaining proper court positioning.",
+      "steps": [
+        {
+          "note": "Start Position",
+          "players": [
+            { "id": "P1", "x": -5, "z": -7 },
+            { "id": "P2", "x": 5, "z": 7 }
+          ],
+          "ball": { "x": -5, "z": -7 }
+        },
+        {
+          "note": "Cross Court Dink",
+          "players": [
+            { "id": "P1", "x": -5, "z": -7 },
+            { "id": "P2", "x": 5, "z": 7 }
+          ],
+          "ball": { "x": 5, "z": 7 }
+        },
+        {
+          "note": "Return Dink",
+          "players": [
+            { "id": "P1", "x": -5, "z": -7 },
+            { "id": "P2", "x": 5, "z": 7 }
+          ],
+          "ball": { "x": -5, "z": -7 }
+        }
+      ]
+    }
+  ],
+  "categories": {
+    "fundamentals": {
+      "name": "Fundamentals",
+      "description": "Basic shots and techniques every player should master"
+    },
+    "kitchen": {
+      "name": "Kitchen Play",
+      "description": "Drills focused on the non-volley zone and soft game"
+    },
+    "strategy": {
+      "name": "Strategy",
+      "description": "Advanced drills focusing on game strategy and shot selection"
+    }
+  },
+  "types": {
+    "third-shot": {
+      "name": "Third Shot",
+      "description": "Drills focusing on the critical third shot"
+    },
+    "dinking": {
+      "name": "Dinking",
+      "description": "Soft game and kitchen line exchanges"
+    },
+    "volley": {
+      "name": "Volley",
+      "description": "Quick exchanges and volley technique"
+    },
+    "reset": {
+      "name": "Reset",
+      "description": "Recovery shots and defensive play"
+    },
+    "serve-return": {
+      "name": "Serve & Return",
+      "description": "Starting the point and return of serve"
+    }
+  }
+} 
