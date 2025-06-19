@@ -9,63 +9,13 @@
 
 <script lang="ts">
   import { drillsStore } from '$lib/stores/drills';
-  import type { Drill, DrillStep } from '$lib/types/drills';
+  import type { Drill, DrillStep, Player, Ball } from '$lib/types/drills';
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
 
-  // Grid system for playable area (extends beyond court boundaries)
-  // Playable area is 30ft wide (A-O) and 46ft long (2-24)
-  // Each cell is 2ft × 2ft
-  // Court is a subset of the playable area:
-  // - Court width: C2-M2 (20ft)
-  // - Court length: C2-C24 (44ft)
-  // - Net: C13-M13
-  // - Kitchen lines: C10-M10 and C16-M16
-  // Players can be positioned anywhere in the playable area (A2-O24)
-  const COLUMNS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O'];
-  const ROWS = Array.from({ length: 25 }, (_, i) => (i + 1).toString());
-
-  // Convert grid reference to court coordinates
-  function gridToCourtCoordinates(ref: string): { x: number, z: number } | null {
-    if (ref.length < 2) return null;
-    const col = ref[0].toUpperCase();
-    const row = ref.slice(1);
-    
-    const colIndex = COLUMNS.indexOf(col);
-    const rowIndex = ROWS.indexOf(row);
-    
-    if (colIndex === -1 || rowIndex === -1) return null;
-
-    // Convert to court coordinates
-    // Playable area extends beyond court boundaries:
-    // - Court is 20ft wide (C-M) and 44ft long (2-24)
-    // - Net is at row 13 (z=0)
-    // - Kitchen lines are at rows 10 and 16 (z=±7)
-    // - Court boundaries are at columns C and M, rows 2 and 24
-    const x = (colIndex - 6) * 2; // Center court at column G (index 6)
-    const z = (rowIndex - 12) * 2; // Net is at row 13 (index 12)
-    
-    return { x, z };
-  }
-
-  // Convert court coordinates to grid reference
-  function courtToGridCoordinates(x: number, z: number): string {
-    // Convert from court coordinates to grid coordinates
-    // Playable area extends beyond court boundaries
-    // Column G (index 6) is center of court (x=0)
-    // Row 13 (index 12) is exactly at the net (z=0)
-    const colIndex = Math.round((x / 2) + 6);
-    const rowIndex = Math.round((z / 2) + 12);
-    
-    if (colIndex < 0 || colIndex >= COLUMNS.length || rowIndex < 0 || rowIndex >= ROWS.length) {
-      return '';
-    }
-    
-    return `${COLUMNS[colIndex]}${ROWS[rowIndex]}`;
-  }
-
   // State for the current drill being configured
-  let currentDrill: Partial<Drill> = {
+  let currentDrill: Drill = {
+    id: '',
     name: '',
     description: '',
     category: 'fundamentals',
@@ -78,9 +28,14 @@
 
   // State for the current step being edited
   let currentStepIndex = 0;
-  let currentStep: Partial<DrillStep> = {
+  let currentStep: DrillStep = {
     note: '',
-    players: [],
+    players: [
+      { id: 'P1', x: 0, z: 0 },
+      { id: 'P2', x: 0, z: 0 },
+      { id: 'P3', x: 0, z: 0 },
+      { id: 'P4', x: 0, z: 0 }
+    ],
     ball: { x: 0, z: 0 }
   };
 
@@ -92,7 +47,6 @@
   // Load available drills
   onMount(async () => {
     if (!browser) return;
-    
     try {
       await drillsStore.load();
       availableDrills = drillsStore.getDrills();
@@ -103,45 +57,38 @@
     }
   });
 
-  // Handle drill selection
   function loadDrill(drillId: string) {
     const drill = drillsStore.getDrillById(drillId);
-    if (drill) {
-      currentDrill = { ...drill } as Partial<Drill>;
+    if (drill && typeof drill === 'object' && 'steps' in drill) {
+      const d = drill as Drill;
+      currentDrill = { ...d, steps: Array.isArray(d.steps) ? d.steps : [] };
       selectedDrillId = drillId;
       currentStepIndex = 0;
-      if (drill.steps && drill.steps.length > 0) {
-        currentStep = { ...drill.steps[0] } as Partial<DrillStep>;
+      if (currentDrill.steps.length > 0) {
+        currentStep = { ...currentDrill.steps[0] };
       }
     }
   }
 
-  // Handle saving drill
   function saveDrill() {
     if (!currentDrill.name) {
       alert('Please enter a drill name');
       return;
     }
-
-    // Generate ID if new drill
     if (!currentDrill.id) {
       currentDrill.id = currentDrill.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     }
-
-    // Ensure steps array exists
-    if (!currentDrill.steps) {
+    if (!Array.isArray(currentDrill.steps)) {
       currentDrill.steps = [];
     }
-
-    // Save to store
-    drillsStore.saveDrill(currentDrill as Drill);
+    drillsStore.saveDrill(currentDrill);
     selectedDrillId = currentDrill.id;
     availableDrills = drillsStore.getDrills();
   }
 
-  // Handle creating new drill
   function createNewDrill() {
     currentDrill = {
+      id: '',
       name: '',
       description: '',
       category: 'fundamentals',
@@ -153,60 +100,43 @@
     };
     currentStep = {
       note: '',
-      players: [],
+      players: [
+        { id: 'P1', x: 0, z: 0 },
+        { id: 'P2', x: 0, z: 0 },
+        { id: 'P3', x: 0, z: 0 },
+        { id: 'P4', x: 0, z: 0 }
+      ],
       ball: { x: 0, z: 0 }
     };
     currentStepIndex = 0;
     selectedDrillId = null;
   }
 
-  // Handle adding a position to the current step
-  function addPosition(entity: 'P1' | 'P2' | 'P3' | 'P4' | 'ball', position: string) {
-    const coords = gridToCourtCoordinates(position);
-    if (!coords) return;
-
-    if (entity === 'ball') {
-      currentStep.ball = coords;
-    } else {
-      if (!currentStep.players) {
-        currentStep.players = [];
-      }
-      const existingIndex = currentStep.players.findIndex(p => p.id === entity);
-      if (existingIndex === -1) {
-        currentStep.players.push({ id: entity, ...coords });
-      } else {
-        currentStep.players[existingIndex] = { id: entity, ...coords };
-      }
-    }
-  }
-
-  // Handle saving the current step
   function saveStep() {
-    if (!currentDrill.steps) currentDrill.steps = [];
-    currentDrill.steps[currentStepIndex] = currentStep as DrillStep;
+    if (!Array.isArray(currentDrill.steps)) currentDrill.steps = [];
+    currentDrill.steps[currentStepIndex] = { ...currentStep };
     currentStep = {
       note: '',
-      players: [],
+      players: [
+        { id: 'P1', x: 0, z: 0 },
+        { id: 'P2', x: 0, z: 0 },
+        { id: 'P3', x: 0, z: 0 },
+        { id: 'P4', x: 0, z: 0 }
+      ],
       ball: { x: 0, z: 0 }
     };
   }
 
-  // Handle step navigation
   function goToStep(index: number) {
-    if (currentDrill.steps && index >= 0 && index < currentDrill.steps.length) {
+    if (Array.isArray(currentDrill.steps) && index >= 0 && index < currentDrill.steps.length) {
       currentStepIndex = index;
       const step = currentDrill.steps[index];
       if (step) {
-        currentStep = {
-          note: step.note,
-          players: [...step.players],
-          ball: { ...step.ball }
-        };
+        currentStep = { ...step };
       }
     }
   }
 
-  // Handle step deletion
   function deleteStep(index: number) {
     if (!currentDrill.steps) return;
     if (confirm('Are you sure you want to delete this step?')) {
@@ -218,87 +148,42 @@
       if (newSteps.length > 0) {
         const step = newSteps[currentStepIndex];
         if (step) {
-          currentStep = {
-            note: step.note,
-            players: [...step.players],
-            ball: { ...step.ball }
-          };
+          currentStep = { ...step };
         }
       } else {
         currentStep = {
           note: '',
-          players: [],
+          players: [
+            { id: 'P1', x: 0, z: 0 },
+            { id: 'P2', x: 0, z: 0 },
+            { id: 'P3', x: 0, z: 0 },
+            { id: 'P4', x: 0, z: 0 }
+          ],
           ball: { x: 0, z: 0 }
         };
       }
     }
   }
-
-  // Handle position input changes
-  function handlePositionChange(event: Event, entity: 'P1' | 'P2' | 'P3' | 'P4' | 'ball') {
-    const input = event.target as HTMLInputElement | null;
-    if (input?.value) {
-      addPosition(entity, input.value);
-    }
-  }
-
-  // Generate grid cells for reference
-  $: gridCells = COLUMNS.flatMap(col => 
-    ROWS.map(row => ({
-      id: `${col}${row}`,
-      col,
-      row
-    }))
-  );
 </script>
 
 <div class="configure-page">
-  <div class="content">
-    <div class="sidebar">
-      <h2>Drill Configuration</h2>
-      
-      {#if loading}
-        <div class="loading">Loading drills...</div>
-      {:else}
-        <div class="drill-selector">
-          <div class="form-group">
-            <label for="drill-select">Select Drill</label>
-            <select 
-              id="drill-select" 
-              bind:value={selectedDrillId}
-              on:change={(e) => loadDrill(e.target.value)}
-            >
-              <option value="">Create New Drill</option>
-              {#each availableDrills as drill}
-                <option value={drill.id}>{drill.name}</option>
-              {/each}
-            </select>
-          </div>
-          <button class="new-drill-button" on:click={createNewDrill}>New Drill</button>
+  <div class="main-content">
+    <div class="section">
+      <div class="section-title">Drill Details</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="drill-select">Select Drill</label>
+          <select id="drill-select" bind:value={selectedDrillId} on:change={(e) => loadDrill((e.target as HTMLSelectElement).value)}>
+            <option value="">Create New Drill</option>
+            {#each availableDrills as drill}
+              <option value={drill.id}>{drill.name}</option>
+            {/each}
+          </select>
         </div>
-
-        <!-- svelte-ignore a11y-label-has-associated-control -->
         <div class="form-group">
           <label for="drill-name">Drill Name</label>
-          <input 
-            type="text" 
-            id="drill-name" 
-            bind:value={currentDrill.name} 
-            placeholder="Enter drill name"
-          />
+          <input type="text" id="drill-name" bind:value={currentDrill.name} placeholder="Enter drill name" />
         </div>
-
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <div class="form-group">
-          <label for="drill-description">Description</label>
-          <textarea 
-            id="drill-description" 
-            bind:value={currentDrill.description} 
-            placeholder="Enter drill description"
-          ></textarea>
-        </div>
-
-        <!-- svelte-ignore a11y-label-has-associated-control -->
         <div class="form-group">
           <label for="drill-type">Type</label>
           <select id="drill-type" bind:value={currentDrill.type}>
@@ -307,8 +192,6 @@
             {/each}
           </select>
         </div>
-
-        <!-- svelte-ignore a11y-label-has-associated-control -->
         <div class="form-group">
           <label for="drill-players">Number of Players</label>
           <select id="drill-players" bind:value={currentDrill.players}>
@@ -317,8 +200,6 @@
             <option value={4}>4 Players</option>
           </select>
         </div>
-
-        <!-- svelte-ignore a11y-label-has-associated-control -->
         <div class="form-group">
           <label for="drill-difficulty">Difficulty</label>
           <select id="drill-difficulty" bind:value={currentDrill.difficulty}>
@@ -327,679 +208,333 @@
             <option value="advanced">Advanced</option>
           </select>
         </div>
-
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <div class="form-group">
-          <label for="drill-goal">Goal</label>
-          <textarea 
-            id="drill-goal" 
-            bind:value={currentDrill.goal} 
-            placeholder="Enter drill goal"
-          ></textarea>
+        <div class="form-group" style="grid-column: 1 / -1;">
+          <label for="drill-description">Description</label>
+          <textarea id="drill-description" bind:value={currentDrill.description} placeholder="Enter drill description"></textarea>
         </div>
-
+        <div class="form-group" style="grid-column: 1 / -1;">
+          <label for="drill-goal">Goal</label>
+          <textarea id="drill-goal" bind:value={currentDrill.goal} placeholder="Enter drill goal"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Drill Steps</div>
+      <div class="step-section">
+        <div class="step-list">
+          {#each currentDrill.steps as step, index}
+            <div class="step-item-row">
+              <button type="button" class="step-item" class:active={index === currentStepIndex} on:click={() => goToStep(index)}>
+                <div class="step-item-header">
+                  <span class="step-number">Step {index + 1}</span>
+                </div>
+                <div class="step-note">{step.note || 'No note'}</div>
+                <div class="step-positions">
+                  {#each step.players as player}
+                    <div class="position">{player.id}: ({player.x}, {player.z})</div>
+                  {/each}
+                  <div class="position">Ball: ({step.ball.x}, {step.ball.z})</div>
+                </div>
+              </button>
+              <button class="delete-step-button" on:click={() => deleteStep(index)} aria-label="Delete step">×</button>
+            </div>
+          {/each}
+        </div>
         <div class="step-editor">
           <div class="step-header">
-            <h3>Step {currentStepIndex + 1}</h3>
+            <h3 style="margin:0;font-size:1.1em;">Step {currentStepIndex + 1}</h3>
             <div class="step-navigation">
-              <button 
-                class="nav-button" 
-                on:click={() => goToStep(currentStepIndex - 1)}
-                disabled={currentStepIndex === 0}
-              >
-                ←
-              </button>
-              <button 
-                class="nav-button" 
-                on:click={() => goToStep(currentStepIndex + 1)}
-                disabled={!currentDrill.steps || currentStepIndex === currentDrill.steps.length - 1}
-              >
-                →
-              </button>
+              <button class="nav-button" on:click={() => goToStep(currentStepIndex - 1)} disabled={currentStepIndex === 0}>←</button>
+              <button class="nav-button" on:click={() => goToStep(currentStepIndex + 1)} disabled={!currentDrill.steps || currentStepIndex === currentDrill.steps.length - 1}>→</button>
             </div>
           </div>
-
-          <!-- Step list -->
-          {#if currentDrill.steps && currentDrill.steps.length > 0}
-            <div class="step-list">
-              {#each currentDrill.steps as step, index}
-                <div 
-                  class="step-item" 
-                  class:active={index === currentStepIndex}
-                  on:click={() => goToStep(index)}
-                >
-                  <div class="step-item-header">
-                    <span class="step-number">Step {index + 1}</span>
-                    <button 
-                      class="delete-step-button"
-                      on:click|stopPropagation={() => deleteStep(index)}
-                    >
-                      ×
-                    </button>
-                  </div>
-                  <div class="step-note">{step.note || 'No note'}</div>
-                  <div class="step-positions">
-                    {#each step.players as player}
-                      <div class="position">
-                        {player.id}: {courtToGridCoordinates(player.x, player.z)}
-                      </div>
-                    {/each}
-                    <div class="position">
-                      Ball: {courtToGridCoordinates(step.ball.x, step.ball.z)}
-                    </div>
-                  </div>
-                </div>
-              {/each}
-            </div>
-          {/if}
-          
-          <!-- Step form -->
           <div class="form-group">
             <label for="step-note">Step Note</label>
-            <input 
-              type="text" 
-              id="step-note" 
-              bind:value={currentStep.note} 
-              placeholder="Enter step description"
-            />
+            <input type="text" id="step-note" bind:value={currentStep.note} placeholder="Enter step description" />
           </div>
-
-          <div class="position-inputs">
+          <div class="form-grid">
             <div class="form-group">
-              <label>Ball Position</label>
-              <input 
-                type="text" 
-                placeholder="e.g., A1" 
-                value={currentStep.ball ? courtToGridCoordinates(currentStep.ball.x, currentStep.ball.z) : ''}
-                on:change={(e) => handlePositionChange(e, 'ball')}
-              />
+              <label for="ball-x">Ball Position (X, Z)</label>
+              <input id="ball-x" type="number" placeholder="X coordinate" bind:value={currentStep.ball.x} step="0.1" style="width: 100px; display: inline-block; margin-right: 8px;" />
+              <input id="ball-z" type="number" placeholder="Z coordinate" bind:value={currentStep.ball.z} step="0.1" style="width: 100px; display: inline-block;" />
             </div>
-
-            {#each ['P1', 'P2', 'P3', 'P4'] as player}
-              {#if parseInt(currentDrill.players?.toString() || '0') >= parseInt(player[1])}
+            {#each currentStep.players as player, idx}
+              {#if idx < currentDrill.players}
                 <div class="form-group">
-                  <label>{player} Position</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g., A1" 
-                    value={currentStep.players?.find(p => p.id === player) 
-                      ? courtToGridCoordinates(
-                          currentStep.players.find(p => p.id === player)?.x ?? 0,
-                          currentStep.players.find(p => p.id === player)?.z ?? 0
-                        )
-                      : ''}
-                    on:change={(e) => handlePositionChange(e, player as 'P1' | 'P2' | 'P3' | 'P4')}
-                  />
+                  <label for="player-{player.id}-x">{player.id} Position (X, Z)</label>
+                  <input id="player-{player.id}-x" type="number" placeholder="X coordinate" bind:value={currentStep.players[idx].x} step="0.1" style="width: 100px; display: inline-block; margin-right: 8px;" />
+                  <input id="player-{player.id}-z" type="number" placeholder="Z coordinate" bind:value={currentStep.players[idx].z} step="0.1" style="width: 100px; display: inline-block;" />
                 </div>
               {/if}
             {/each}
           </div>
-
           <div class="step-buttons">
             <button on:click={saveStep}>Save Step</button>
             <button on:click={() => {
               if (!currentDrill.steps) currentDrill.steps = [];
               currentDrill.steps.push({
                 note: '',
-                players: [],
+                players: [
+                  { id: 'P1', x: 0, z: 0 },
+                  { id: 'P2', x: 0, z: 0 },
+                  { id: 'P3', x: 0, z: 0 },
+                  { id: 'P4', x: 0, z: 0 }
+                ],
                 ball: { x: 0, z: 0 }
               });
               currentStepIndex = currentDrill.steps.length - 1;
               currentStep = { ...currentDrill.steps[currentStepIndex] };
-            }}>
-              Add Step
-            </button>
+            }}>Add Step</button>
           </div>
         </div>
-
-        <div class="save-controls">
-          <button class="save-button" on:click={saveDrill}>
-            {selectedDrillId ? 'Update Drill' : 'Save New Drill'}
-          </button>
-          {#if selectedDrillId}
-            <button 
-              class="delete-button" 
-              on:click={() => {
-                if (confirm('Are you sure you want to delete this drill?')) {
-                  drillsStore.deleteDrill(selectedDrillId!);
-                  createNewDrill();
-                  availableDrills = drillsStore.getDrills();
-                }
-              }}
-            >
-              Delete Drill
-            </button>
-          {/if}
-        </div>
-      {/if}
-    </div>
-
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div class="court-section">
-      <div class="court-container">
-        <!-- Court outline -->
-        <div class="court">
-          <!-- Net -->
-          <div class="net"></div>
-          
-          <!-- Kitchen lines -->
-          <div class="kitchen-line near"></div>
-          <div class="kitchen-line far"></div>
-          
-          <!-- Court boundaries -->
-          <div class="court-boundary"></div>
-        </div>
-
-        <!-- Grid overlay using CSS Grid -->
-        <div class="grid-overlay">
-          <!-- Column labels -->
-          {#each COLUMNS as col, colIndex}
-            <div class="grid-column-label" style="grid-column: {colIndex + 2}">{col}</div>
-          {/each}
-
-          <!-- Grid cells -->
-          {#each ROWS as row, rowIndex}
-            <div class="grid-row-label" style="grid-row: {rowIndex + 2}">{row}</div>
-            {#each COLUMNS as col, colIndex}
-              <div 
-                class="grid-cell" 
-                class:kitchen-line={rowIndex === 9 || rowIndex === 15}
-                style="grid-column: {colIndex + 2}; grid-row: {rowIndex + 2}"
-              >
-                {col}{row}
-              </div>
-            {/each}
-          {/each}
-        </div>
       </div>
+    </div>
+    <div class="save-controls">
+      <button class="save-button" on:click={saveDrill}>{selectedDrillId ? 'Update Drill' : 'Save New Drill'}</button>
+      {#if selectedDrillId}
+        <button class="delete-button" on:click={() => {
+          if (confirm('Are you sure you want to delete this drill?')) {
+            drillsStore.deleteDrill(selectedDrillId!);
+            createNewDrill();
+            availableDrills = drillsStore.getDrills();
+          }
+        }}>Delete Drill</button>
+      {/if}
     </div>
   </div>
 </div>
 
 <style>
   .configure-page {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    background: #1a1a1a;
+    min-height: 100vh;
+    background: #181a1b;
     color: #fff;
     overflow: auto;
   }
-
-  .content {
-    display: flex;
-    flex: 1;
-    overflow: auto;
-    padding: 20px;
-    gap: 20px;
-    align-items: flex-start;
-  }
-
-  .court-section {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-width: 0;
-    height: 100%;
-  }
-
-  .court-container {
-    position: relative;
-    width: 240px;  /* 20ft × 12px/ft */
-    height: 528px; /* 44ft × 12px/ft */
-    margin: 0;
-    padding: 0;
-  }
-
-  .court {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 240px;
-    height: 528px;
-    background: #2a2a2a;
-    border: 2px solid #666;
-    z-index: 1;
-  }
-
-  .net {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: #888;
-    transform: translateY(-50%);
-    z-index: 3;
-  }
-
-  .kitchen-line {
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: #666;
-  }
-
-  .kitchen-line.near {
-    top: calc(50% - 84px);
-  }
-
-  .kitchen-line.far {
-    top: calc(50% + 84px);
-  }
-
-  .court-boundary {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border: 2px solid #666;
-    z-index: 3;
-  }
-
-  .grid-overlay {
-    position: absolute;
-    /* Position grid so court is centered within it */
-    top: -60px;  /* (648px - 528px) / 2 to center court in total grid height */
-    left: -84px; /* (360px - 240px) / 2 to center court horizontally */
-    z-index: 2;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(15, 24px); /* 2ft × 12px/ft */
-    grid-template-rows: 24px repeat(25, 24px); /* 2ft × 12px/ft */
-    width: 360px;  /* 15 columns × 24px */
-    height: 648px; /* 26 rows × 24px */
-  }
-
-  .grid-columns {
-    display: contents;
-  }
-
-  .grid-column-label {
-    grid-row: 1;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 0.9em;
-    width: 24px;
-    margin: 0;
-    padding: 0;
-  }
-
-  .grid-rows {
-    display: contents;
-  }
-
-  .grid-row {
-    display: contents;
-  }
-
-  .grid-row-label {
-    grid-column: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 0.9em;
-    width: 24px;
-    margin: 0;
-    padding: 0;
-  }
-
-  .grid-row-cells {
-    display: contents;
-  }
-
-  .grid-cell {
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.7em;
-    color: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    margin: 0;
-    padding: 0;
-  }
-
-  .grid-cell.kitchen-line {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.3);
-  }
-
-  .drill-selector {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-
-  .drill-selector .form-group {
-    flex: 1;
-  }
-
-  .new-drill-button {
-    padding: 8px 12px;
-    background: #2196F3;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-
-  .new-drill-button:hover {
-    background: #1976D2;
-  }
-
-  .save-controls {
-    margin-top: auto;
-    padding-top: 20px;
-    display: flex;
-    gap: 10px;
-  }
-
-  .save-button {
-    flex: 1;
-    padding: 12px;
-    background: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 1.1em;
-    cursor: pointer;
-  }
-
-  .save-button:hover {
-    background: #45a049;
-  }
-
-  .delete-button {
-    padding: 12px;
-    background: #f44336;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 1.1em;
-    cursor: pointer;
-  }
-
-  .delete-button:hover {
-    background: #d32f2f;
-  }
-
-  .sidebar {
-    width: 300px;
-    background: #2a2a2a;
-    padding: 20px;
-    border-radius: 8px;
+  .main-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 16px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    overflow-y: auto;
+    gap: 32px;
   }
-
+  .section {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #23272a;
+  }
+  .section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  .section-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #b3e5fc;
+    letter-spacing: 0.5px;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 32px;
+    align-items: end;
+  }
   .form-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
+    min-width: 0;
   }
-
   .form-group label {
-    font-weight: bold;
-    color: #fff;
+    font-weight: 500;
+    color: #b0bec5;
+    font-size: 0.98em;
   }
-
   .form-group input,
   .form-group select,
   .form-group textarea {
-    padding: 8px;
-    border: 1px solid #444;
+    padding: 8px 10px;
+    border: 1px solid #333;
     border-radius: 4px;
-    background: #333;
+    background: #23272a;
     color: #fff;
+    font-size: 1em;
+    width: 100%;
+    box-sizing: border-box;
   }
-
   .form-group textarea {
-    min-height: 100px;
+    min-height: 70px;
     resize: vertical;
   }
-
-  .step-editor {
-    margin-top: 20px;
-    padding: 16px;
-    background: #333;
-    border-radius: 4px;
+  .step-section {
+    display: flex;
+    gap: 32px;
+    align-items: stretch;
+    flex-wrap: wrap;
   }
-
-  .position-inputs {
+  .step-list {
+    min-width: 180px;
+    max-width: 220px;
+    flex: 1 1 0;
+    min-height: 100%;
+    background: #23272a;
+    border-radius: 6px;
+    border: 1px solid #23272a;
+    padding: 8px 0;
+    box-shadow: 0 2px 8px 0 #0002;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin: 16px 0;
   }
-
-  .step-buttons {
+  .step-item-row {
     display: flex;
-    gap: 8px;
+    align-items: stretch;
+    gap: 4px;
+    margin-bottom: 6px;
   }
-
-  .step-buttons button {
-    padding: 8px 12px;
-    border: 1px solid #444;
+  .step-item {
+    background: none;
+    border: none;
+    text-align: left;
+    flex: 1 1 auto;
+    padding: 8px 10px;
     border-radius: 4px;
-    background: #333;
-    color: white;
     cursor: pointer;
+    transition: background 0.15s, border 0.15s;
+    border: 1.5px solid transparent;
+    color: #fff;
+    font-size: 1em;
   }
-
-  .button-group {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
+  .step-item.active {
+    background: #263238;
+    border-color: #29b6f6;
+    color: #29b6f6;
   }
-
-  button {
-    padding: 8px 16px;
+  .delete-step-button {
+    background: #d32f2f;
+    color: #fff;
     border: none;
     border-radius: 4px;
-    background: #444;
-    color: #fff;
+    width: 32px;
+    height: 32px;
+    font-size: 1.2em;
     cursor: pointer;
-    transition: background 0.2s;
+    align-self: center;
+    transition: background 0.15s;
   }
-
-  button:hover {
-    background: #555;
+  .delete-step-button:hover {
+    background: #b71c1c;
   }
-
-  button.primary {
-    background: #0066cc;
-  }
-
-  button.primary:hover {
-    background: #0055aa;
-  }
-
-  button.danger {
-    background: #cc0000;
-  }
-
-  button.danger:hover {
-    background: #aa0000;
-  }
-
-  .step-list {
+  .step-editor {
+    flex: 2 1 0;
+    background: #23272a;
+    border-radius: 6px;
+    padding: 18px 18px 12px 18px;
+    box-shadow: 0 2px 8px 0 #0002;
+    border: 1px solid #23272a;
+    min-width: 260px;
+    max-width: 100%;
+    min-height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 10px;
   }
-
-  .step-item {
-    background: #333;
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #444;
-  }
-
-  .step-item.active {
-    border-color: #0066cc;
-  }
-
   .step-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
   }
-
-  .step-number {
-    font-weight: bold;
-    color: #fff;
-  }
-
-  .step-actions {
-    display: flex;
-    gap: 5px;
-  }
-
-  .step-content {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .position-inputs {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .position-group {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .position-group label {
-    font-size: 0.9em;
-    color: #ccc;
-  }
-
-  .position-input {
-    display: flex;
-    gap: 8px;
-  }
-
-  .position-input input {
-    flex: 1;
-  }
-
-  .loading {
-    padding: 20px;
-    text-align: center;
-    color: rgba(255, 255, 255, 0.7);
-  }
-
   .step-navigation {
     display: flex;
     gap: 8px;
   }
-
   .nav-button {
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
+    background: #37474f;
+    color: #b3e5fc;
+    border: none;
     border-radius: 4px;
+    padding: 4px 12px;
+    font-size: 1.1em;
     cursor: pointer;
+    transition: background 0.15s;
   }
-
   .nav-button:disabled {
-    opacity: 0.5;
+    background: #23272a;
+    color: #789;
     cursor: not-allowed;
   }
-
-  .step-list {
-    margin-bottom: 20px;
+  .step-buttons {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-height: 200px;
-    overflow-y: auto;
+    gap: 10px;
+    margin-top: 10px;
   }
-
-  .step-item {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-    padding: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .step-item:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .step-item.active {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
-  }
-
-  .step-item-header {
+  .save-controls {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
+    gap: 16px;
+    margin-top: 18px;
+    justify-content: flex-end;
   }
-
-  .step-number {
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.9);
-  }
-
-  .delete-step-button {
-    background: none;
+  .save-button {
+    background: #29b6f6;
+    color: #181a1b;
     border: none;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 1.2em;
+    border-radius: 4px;
+    padding: 10px 22px;
+    font-size: 1.1em;
+    font-weight: 600;
     cursor: pointer;
-    padding: 0 4px;
+    transition: background 0.15s;
   }
-
-  .delete-step-button:hover {
-    color: rgba(255, 255, 255, 0.8);
+  .save-button:hover {
+    background: #039be5;
   }
-
-  .step-note {
-    font-size: 0.9em;
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 4px;
+  .delete-button {
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 18px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
   }
-
-  .step-positions {
-    font-size: 0.8em;
-    color: rgba(255, 255, 255, 0.6);
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+  .delete-button:hover {
+    background: #b71c1c;
   }
-
-  .position {
-    display: flex;
-    gap: 8px;
+  @media (max-width: 700px) {
+    .main-content {
+      max-width: 100vw;
+      padding: 8px 2vw;
+      gap: 18px;
+    }
+    .form-grid {
+      grid-template-columns: 1fr;
+      gap: 14px 0;
+    }
+    .step-section {
+      flex-direction: column;
+      gap: 18px;
+    }
+    .step-list, .step-editor {
+      min-height: unset;
+      flex: unset;
+    }
+    .step-list {
+      max-width: 100%;
+      min-width: 0;
+      margin-bottom: 10px;
+    }
+    .step-editor {
+      min-width: 0;
+      padding: 12px 6px 8px 6px;
+    }
+    .save-controls {
+      flex-direction: column;
+      gap: 10px;
+      align-items: stretch;
+    }
   }
 </style> 

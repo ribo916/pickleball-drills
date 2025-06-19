@@ -1,9 +1,10 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { drillsStore } from '$lib/stores/drills';
-  import { initVisualization, cleanup } from '$lib/drills/main';
+  import { initVisualization, cleanup, setShowCoordinateOverlay } from '$lib/drills/main';
   import { browser } from '$app/environment';
   import type { Drill } from '$lib/types/drills';
+  import { showXYOverlay } from '$lib/stores/ui';
 
   let loading = true;
   let error: string | null = null;
@@ -52,6 +53,9 @@
     if (!currentDrill) return;
     drillsStore.previousStep();
   }
+
+  // Reactively update overlay in visualization
+  $: setShowCoordinateOverlay && setShowCoordinateOverlay($showXYOverlay);
 </script>
 
 <canvas id="court"></canvas>

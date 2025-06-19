@@ -1,10 +1,12 @@
 <script lang="ts">
   import { drillsStore } from '$lib/stores/drills';
   import type { Drill } from '$lib/types/drills';
+  import { showXYOverlay } from '$lib/stores/ui';
   
   let showMenu = false;
   let selectedType: string | null = null;
   let selectedPlayerCount: number | null = null;
+  let availableDrills: Drill[] = [];
 
   function selectDrill(drillId: string) {
     const drills = drillsStore.getDrills();
@@ -19,7 +21,7 @@
 
   $: availableDrills = (() => {
     const drills = drillsStore.getDrills();
-    if (!drills) return [];
+    if (!drills) return [] as Drill[];
     
     let filtered = [...drills];
     if (selectedType) {
@@ -28,7 +30,7 @@
     if (selectedPlayerCount) {
       filtered = filtered.filter(d => d.players === selectedPlayerCount);
     }
-    return filtered;
+    return filtered as Drill[];
   })();
 
   // Reset filters when menu is closed
@@ -43,7 +45,6 @@
   <button class="menu-button" on:click={() => showMenu = !showMenu} aria-label="Toggle drill menu">
     <span class="hamburger"></span>
   </button>
-  <h1>Pickleball Drills</h1>
   <div class="nav-buttons">
     <a href="/" class="nav-button" aria-label="Home">
       🏠
@@ -51,6 +52,20 @@
     <a href="/configure" class="nav-button" aria-label="Configure drills">
       ⚙️
     </a>
+    <button
+      on:click={() => showXYOverlay.update(v => !v)}
+      aria-label="Toggle XY Coordinates"
+      class="nav-button xy-toggle"
+      style="background:none;border:none;padding:0 8px;display:flex;align-items:center;cursor:pointer;"
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={$showXYOverlay ? '#4fc3f7' : '#888'} stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <line x1="9" y1="3" x2="9" y2="21"/>
+        <line x1="15" y1="3" x2="15" y2="21"/>
+        <line x1="3" y1="9" x2="21" y2="9"/>
+        <line x1="3" y1="15" x2="21" y2="15"/>
+      </svg>
+    </button>
   </div>
 </div>
 
@@ -84,7 +99,8 @@
       </div>
 
       <div class="drill-list">
-        {#each availableDrills as drill}
+        {#each availableDrills as drill_ (drill_.id)}
+          {@const drill = drill_ as Drill}
           <!-- svelte-ignore a11y-click-events-have-key-events -->
           <!-- svelte-ignore a11y-no-static-element-interactions -->
           <div 

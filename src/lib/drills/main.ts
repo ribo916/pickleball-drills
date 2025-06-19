@@ -16,6 +16,71 @@ let players: THREE.Mesh[];
 let ball: THREE.Mesh;
 let animationFrameId: number;
 
+// --- Coordinate Overlay Logic ---
+let showCoordinateOverlay = false;
+let courtLabels: THREE.Sprite[] = [];
+
+export function setShowCoordinateOverlay(show: boolean) {
+  showCoordinateOverlay = show;
+  updateCourtCoordinateLabels();
+}
+
+function createTextSprite(text: string, color: string = '#fff'): THREE.Sprite {
+  const canvas = document.createElement('canvas');
+  const size = 128;
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d')!;
+  ctx.clearRect(0, 0, size, size);
+  ctx.font = 'bold 32px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = color;
+  ctx.strokeStyle = '#222';
+  ctx.lineWidth = 6;
+  ctx.strokeText(text, size/2, size/2);
+  ctx.fillText(text, size/2, size/2);
+  const texture = new THREE.Texture(canvas);
+  texture.needsUpdate = true;
+  const material = new THREE.SpriteMaterial({ map: texture, depthTest: false });
+  const sprite = new THREE.Sprite(material);
+  sprite.scale.set(9, 3.6, 1); // 50% larger than before
+  sprite.material.rotation = 0; // Make readable from top-down
+  return sprite;
+}
+
+function updateCourtCoordinateLabels() {
+  if (!scene) return;
+  // Remove old labels
+  courtLabels.forEach(label => scene.remove(label));
+  courtLabels = [];
+  if (!showCoordinateOverlay) return;
+
+  // Key court intersection points (where lines meet and net sides)
+  // Court is 20x44, centered at (0,0), lines at x=-10,0,10 and z=-22,-7,0,7,22
+  const xs = [-10, 0, 10];
+  const zs = [-22, -7, 0, 7, 22];
+  // Place labels at all intersections
+  for (const x of xs) {
+    for (const z of zs) {
+      const label = createTextSprite(`(${x}, ${z})`, '#fff');
+      label.position.set(x, 0.05, z); // just above court
+      scene.add(label);
+      courtLabels.push(label);
+    }
+  }
+  // Net sides (left/right)
+  const netZ = 0;
+  const netY = 0.05;
+  const netXs = [-10, 10];
+  for (const x of netXs) {
+    const label = createTextSprite(`(${x}, ${netZ})`, '#ffb300');
+    label.position.set(x, netY, netZ);
+    scene.add(label);
+    courtLabels.push(label);
+  }
+}
+
 // Handle window resize
 function onWindowResize() {
   if (!camera || !renderer) return;
@@ -115,6 +180,8 @@ function updateScene(stepIndex: number) {
 
   // Animate the ball
   animateBall(ball, step.ball);
+  // Also update court labels
+  updateCourtCoordinateLabels();
 }
 
 function animate() {
