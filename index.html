@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pickle Lab — Drill Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">PICKLE<span>LAB</span></div>
+  <div class="nav-actions">
+    <button class="btn btn-ghost" onclick="showView('library')">Drills</button>
+    <button class="btn btn-ghost" onclick="exportDrills()" title="Download all drills as CSV">Export</button>
+    <button class="btn btn-primary" onclick="showCreator(null)">+ New</button>
+  </div>
+</nav>
+
+<!-- LIBRARY -->
+<div id="view-library" class="view active">
+  <div class="library-header">
+    <h1>Drill Library</h1>
+    <p>Pickleball drills for weekend sessions</p>
+  </div>
+  <div class="filter-bar" id="filter-bar"></div>
+  <div class="drill-grid" id="drill-grid"></div>
+</div>
+
+<!-- DETAIL -->
+<div id="view-detail" class="view">
+  <div class="detail-header">
+    <button class="back-btn" onclick="showView('library')">← Back to library</button>
+    <div class="detail-title" id="detail-name"></div>
+    <div class="detail-meta" id="detail-meta"></div>
+  </div>
+  <div class="detail-goal" id="detail-goal"></div>
+  <div class="roles-section">
+    <div class="section-label">Player Roles</div>
+    <div class="role-list" id="role-list"></div>
+  </div>
+  <div class="steps-section">
+    <div class="section-label">Steps</div>
+    <div class="steps-list" id="steps-list"></div>
+  </div>
+  <div class="notes-section" id="notes-section-wrap">
+    <div class="section-label">Coaching Notes</div>
+    <ul class="notes-list" id="notes-list"></ul>
+  </div>
+  <div class="court-section" id="court-section">
+    <div class="section-label">Starting Positions</div>
+    <div class="court-wrap">
+      <svg id="detail-court-svg" viewBox="0 0 300 440" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+  </div>
+  <div class="detail-actions">
+    <button class="btn btn-ghost" onclick="editCurrentDrill()">Edit drill</button>
+    <button class="btn btn-danger" onclick="deleteCurrentDrill()">Delete</button>
+  </div>
+</div>
+
+<!-- CREATOR -->
+<div id="view-creator" class="view">
+  <div class="creator-header">
+    <button class="back-btn" onclick="showView('library')">← Cancel</button>
+    <div class="creator-title" id="creator-title">New Drill</div>
+  </div>
+  <div class="form-body">
+    <div class="form-row-2">
+      <div class="form-group">
+        <label class="form-label">Drill Name</label>
+        <input class="form-input" id="f-name" placeholder="e.g. Drip Practice" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Player Count</label>
+        <select class="form-select" id="f-players" onchange="updateCreatorCourt()">
+          <option value="4">4 players</option>
+          <option value="3">3 players</option>
+          <option value="2">2 players</option>
+          <option value="1">1 player</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Short Description</label>
+      <input class="form-input" id="f-desc" placeholder="One-line summary" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Goal</label>
+      <textarea class="form-textarea" id="f-goal" placeholder="What should players improve or focus on?"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tags</label>
+      <div class="tag-picker" id="tag-picker"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Player Roles</label>
+      <div class="role-builder" id="role-builder"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Drill Steps</label>
+      <div class="step-builder" id="step-builder"></div>
+      <button class="add-step-btn" onclick="addStepField()">+ Add Step</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Coaching Notes <span style="color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0">(one per line)</span></label>
+      <textarea class="form-textarea" id="f-notes" placeholder="Watch for early wrist snap&#10;Reset if rally breaks down"></textarea>
+    </div>
+
+    <!-- POSITION EDITOR -->
+    <div class="form-group">
+      <label class="form-label">Starting Positions</label>
+      <div class="position-editor">
+        <div class="position-editor-court">
+          <svg id="creator-court-svg" viewBox="0 0 300 440" xmlns="http://www.w3.org/2000/svg"></svg>
+          <div class="position-inputs" id="position-inputs"></div>
+          <div class="position-hint" style="margin-top:8px">Columns A–F (left→right) · Rows 1–8 (Team A baseline→Team B baseline) · e.g. C2, E6</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="creator-actions">
+    <button class="btn btn-primary" onclick="saveDrill()">Save Drill</button>
+    <button class="btn btn-ghost" onclick="showView('library')">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

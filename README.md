@@ -41,11 +41,16 @@ npm install
 npm run dev
 ```
 
-Opens at `http://localhost:3000`. Uses `localStorage` for persistence in a standard browser.
+Opens at `http://localhost:5173`. Uses `localStorage` for persistence in a standard browser.
+
+```bash
+npm run build    # production build → dist/
+npm run preview  # preview the production build locally
+```
 
 ### Deploy
 
-Push to `main` on GitHub. Vercel autodeploys on every push. Config is in `vercel.json`.
+Push to `main` on GitHub. Vercel autodeploys on every push — runs `npm run build` and serves from `dist/`. Config is in `vercel.json`.
 
 ```bash
 git add .
@@ -59,20 +64,33 @@ git push
 
 ```
 pickleball-drills/
-├── public/
-│   └── index.html       # Entire frontend — all HTML, CSS, JS in one file
-├── package.json
-├── vercel.json          # Static site config — outputDirectory: public
+├── index.html              # HTML shell — no inline CSS or JS
+├── src/
+│   ├── main.js             # Entry point: imports, window bindings, init
+│   ├── style.css           # All styles
+│   ├── constants.js        # PLAYER_COLORS, GRID_*, court dimensions, ALL_TAGS
+│   ├── defaultDrills.js    # Seed data for first load
+│   ├── state.js            # Shared mutable state object
+│   ├── storage.js          # Storage abstraction, loadDrills(), saveDrills()
+│   ├── court.js            # gridToXY(), buildCourtSVG()
+│   ├── utils.js            # esc(), showToast()
+│   ├── navigation.js       # showView()
+│   ├── library.js          # renderLibrary(), setFilter()
+│   ├── detail.js           # openDrill()
+│   ├── creator.js          # All creator/form logic, saveDrill(), deleteCurrentDrill()
+│   └── export.js           # exportDrills()
+├── public/                 # Static assets (favicon etc.) — copied to dist/ verbatim
+├── package.json            # Vite dev/build scripts
+├── vercel.json             # Build command + output directory
 ├── .gitignore
 └── README.md
 ```
 
-When a backend is added, expect to introduce:
+When a backend is added:
 
 ```
-├── api/                 # Vercel serverless functions or Express routes
-├── db/                  # Schema, migrations
-└── public/              # Frontend (may split into src/ with a build step)
+├── api/                    # Vercel serverless functions
+└── db/                     # Schema, migrations
 ```
 
 ---
