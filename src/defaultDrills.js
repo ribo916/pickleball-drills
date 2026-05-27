@@ -6,7 +6,7 @@ export const DEFAULT_DRILLS = [
     desc: 'P1 simulates a bad return from near the baseline. P3 and P4 (Team B) work the 3rd-shot drop. P2 (Team A) threatens the poach from the NVZ.',
     goal: 'Train the 3rd-shot drop under realistic game pressure. P3 must drip to P1\'s feet to neutralize the point and earn the transition forward. P1 practices recovering from a bad situation by moving forward and split-stepping. P2 creates poach pressure from the NVZ while staying honest to the backside.',
     tags: ['3rd shot drop', 'NVZ', 'driving', 'reset', 'poaching'],
-    startPositions: { P1: 'E8', P2: 'C6', P3: 'E1', P4: 'B1' },
+    startPositions: { P1: 'F10', P2: 'D7', P3: 'F1', P4: 'C2' },
     roles: [
       { label: 'P1 — Bad Returner (Team A)', color: 0, desc: 'Starts near the baseline right, simulating a player who just hit a poor return that landed short. Feeds a high floaty ball to P3, then immediately moves forward toward the NVZ and split-steps — feet should land as P3 makes contact.' },
       { label: 'P2 — Poach Threat (Team A)', color: 1, desc: 'Holds position just behind the kitchen line, left-center, shading the middle. Read P3\'s contact before committing to a poach. If the ball pops up, take it. Don\'t abandon the backside early.' },
@@ -35,7 +35,7 @@ export const DEFAULT_DRILLS = [
     desc: 'Two parallel cross-court dink rallies run simultaneously at the NVZ. Each pair competes for longest unbroken rally.',
     goal: 'Build dinking consistency under low stress. Aim for long unbroken rallies while placing the ball at the opponent\'s outside hip. Patience over aggression.',
     tags: ['dinking', 'NVZ', 'consistency', 'reset'],
-    startPositions: { P1: 'B3', P2: 'E3', P3: 'B6', P4: 'E6' },
+    startPositions: { P1: 'C4', P2: 'F4', P3: 'C6', P4: 'F6' },
     roles: [
       { label: 'P1 — Left (Team A)', color: 0, desc: 'Just behind the kitchen line, left side. Rallies cross-court with P4 (Team B right). Count aloud with P2 — competing against P3/P4\'s count.' },
       { label: 'P2 — Right (Team A)', color: 1, desc: 'Just behind the kitchen line, right side. Rallies cross-court with P3 (Team B left). Count aloud with P1 — first pair to 25 unbroken wins the round.' },

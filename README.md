@@ -133,21 +133,24 @@ Each drill object:
 The court SVG uses a 6-column × 8-row grid:
 
 ```
-Columns:  A  B  C  D  E  F   (left → right)
-Rows:     1–8                 (Team A baseline → Team B baseline)
+Columns:  A   B  C  D  E  F  G   H   (left → right)
+          off ←  court (B–G)  → off
+Rows:     1–10   (1 and 10 are off-court; 2–9 are the court)
 ```
 
-Row zones:
-- **1–2** — Team A baseline
-- **3** — Team A NVZ interior (kitchen)
-- **4** — Net zone (net at bottom of row 4)
-- **5** — Team B NVZ interior (kitchen)
-- **6** — Team B post-kitchen transition
-- **7–8** — Team B baseline
+Row zones (within the court, rows 2–9):
+- **2–3** — Team A baseline
+- **4** — Team A NVZ interior (kitchen)
+- **5** — Net zone (net at bottom of row 5)
+- **6** — Team B NVZ interior (kitchen)
+- **7** — Team B post-kitchen transition
+- **8–9** — Team B baseline
 
-Kitchen lines sit at the bottom of row 3 (Team A) and bottom of row 5 (Team B). Players standing *behind* the kitchen line belong in row 3 (Team A) or row 6 (Team B).
+Off-court positions: column A, column H, row 1, and row 10 — one cell outside the court boundary on all sides. Useful for placing players before they enter the court.
 
-Grid coordinate examples: `C2` = mid-court left Team A baseline area, `E3` = right side just inside Team A kitchen.
+Kitchen lines sit at the bottom of row 4 (Team A) and bottom of row 6 (Team B).
+
+Grid coordinate examples: `C3` = left side Team A baseline, `F4` = right side just inside Team A kitchen, `A5` = off-court left at net height.
 
 ---
 
@@ -167,10 +170,10 @@ Grid coordinate examples: `C2` = mid-court left Team A baseline area, `E3` = rig
 
 | Player | Role | Start |
 |---|---|---|
-| P1 | Bad Returner — Team A. Feeds a short floaty ball simulating a shanked return, then scrambles forward and split-steps | E8 |
-| P2 | Poach Threat — Team A. Holds just behind kitchen line shading middle, reads P3's contact before committing | C6 |
-| P3 | 3rd Shot Driver — Team B. Executes drop to P1's feet, keeps moving toward NVZ after contact | E1 |
-| P4 | Baseline Support — Team B. Mirrors P3, watches for P1 popup, transitions forward with P3 | B1 |
+| P1 | Bad Returner — Team A. Feeds a short floaty ball simulating a shanked return, then scrambles forward and split-steps | F10 |
+| P2 | Poach Threat — Team A. Holds just behind kitchen line shading middle, reads P3's contact before committing | D7 |
+| P3 | 3rd Shot Driver — Team B. Executes drop to P1's feet, keeps moving toward NVZ after contact | F1 |
+| P4 | Baseline Support — Team B. Mirrors P3, watches for P1 popup, transitions forward with P3 | C2 |
 
 ### Cross-Court Dink Rally
 Two simultaneous cross-court dink rallies. P1↔P4 and P2↔P3. All four players behind their respective kitchen lines. First pair to 25 unbroken wins the round.
