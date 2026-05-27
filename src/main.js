@@ -3,7 +3,6 @@ import { loadDrills } from './storage.js';
 import { renderLibrary, setFilter } from './library.js';
 import { showView } from './navigation.js';
 import { openDrill } from './detail.js';
-import { exportDrills } from './export.js';
 import {
   showCreator,
   updateCreatorCourt,
@@ -21,7 +20,6 @@ window.showView = showView;
 window.showCreator = showCreator;
 window.openDrill = openDrill;
 window.setFilter = setFilter;
-window.exportDrills = exportDrills;
 window.updateCreatorCourt = updateCreatorCourt;
 window.renderCreatorCourt = renderCreatorCourt;
 window.toggleTag = toggleTag;

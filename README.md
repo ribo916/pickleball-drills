@@ -77,8 +77,7 @@ pickleball-drills/
 │   ├── navigation.js       # showView()
 │   ├── library.js          # renderLibrary(), setFilter()
 │   ├── detail.js           # openDrill()
-│   ├── creator.js          # All creator/form logic, saveDrill(), deleteCurrentDrill()
-│   └── export.js           # exportDrills()
+│   └── creator.js          # All creator/form logic, saveDrill(), deleteCurrentDrill()
 ├── public/                 # Static assets (favicon etc.) — copied to dist/ verbatim
 ├── package.json            # Vite dev/build scripts
 ├── vercel.json             # Build command + output directory
@@ -210,14 +209,6 @@ const storage = {
 ```
 
 When adding a backend: add a third branch that calls your API route. No other changes needed in `loadDrills` or `saveDrills`.
-
----
-
-## Export
-
-The nav bar has an **Export** button that downloads all drills as a CSV (`pickleball-drills-YYYY-MM-DD.csv`). Columns: name, players, description, goal, tags, P1–P4 start positions, all 4 role labels + descriptions, up to 5 step titles + descriptions, coaching notes joined with ` | `.
-
-This exists as a manual backup while the app uses client-side storage.
 
 ---
 
