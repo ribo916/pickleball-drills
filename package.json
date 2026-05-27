@@ -1,0 +1,11 @@
+{
+  "name": "pickleball-drills",
+  "version": "0.1.0",
+  "description": "Pickleball drill library for weekend sessions",
+  "scripts": {
+    "dev": "serve public -p 3000"
+  },
+  "devDependencies": {
+    "serve": "^14.0.0"
+  }
+}
