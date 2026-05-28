@@ -3,6 +3,7 @@ import { loadDrills } from './storage.js';
 import { renderLibrary, setFilter } from './library.js';
 import { showView } from './navigation.js';
 import { openDrill } from './detail.js';
+import { showRandomizer, pickRandomDrill, openPickedDrill } from './randomizer.js';
 import {
   showCreator,
   updateCreatorCourt,
@@ -28,6 +29,9 @@ window.removeStep = removeStep;
 window.saveDrill = saveDrill;
 window.editCurrentDrill = editCurrentDrill;
 window.deleteCurrentDrill = deleteCurrentDrill;
+window.showRandomizer  = showRandomizer;
+window.pickRandomDrill = pickRandomDrill;
+window.openPickedDrill = openPickedDrill;
 
 (async () => {
   await loadDrills();
