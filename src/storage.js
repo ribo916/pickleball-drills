@@ -7,12 +7,27 @@ const storage = {
       const result = await window.storage.get(key, true);
       return result ? result.value : null;
     }
-    return localStorage.getItem(key);
+    try {
+      const res = await fetch(`/api/${key}`);
+      if (!res.ok) throw new Error(`API ${res.status}`);
+      const data = await res.json();
+      return JSON.stringify(data[key]);
+    } catch (e) {
+      return localStorage.getItem(key);
+    }
   },
   async set(key, value) {
     if (window.storage && window.storage.set) {
       await window.storage.set(key, value, true);
-    } else {
+      return;
+    }
+    try {
+      await fetch(`/api/${key}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [key]: JSON.parse(value) }),
+      });
+    } catch (e) {
       localStorage.setItem(key, value);
     }
   },
