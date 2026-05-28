@@ -1,4 +1,5 @@
 import './style.css';
+import { initTheme, setTheme, toggleThemePicker } from './theme.js';
 import { loadDrills } from './storage.js';
 import { renderLibrary, setFilter } from './library.js';
 import { showView } from './navigation.js';
@@ -32,8 +33,11 @@ window.deleteCurrentDrill = deleteCurrentDrill;
 window.showRandomizer  = showRandomizer;
 window.pickRandomDrill = pickRandomDrill;
 window.openPickedDrill = openPickedDrill;
+window.setTheme = setTheme;
+window.toggleThemePicker = toggleThemePicker;
 
 (async () => {
+  initTheme();
   await loadDrills();
   renderLibrary();
 })();
