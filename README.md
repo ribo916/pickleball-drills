@@ -1,6 +1,6 @@
 # Pickle Lab — Pickleball Drill Library
 
-A mobile-friendly web app for a small group to share, create, and reference pickleball drills during weekend sessions. Currently a static site POC with client-side storage. Intended to grow into a full-stack app with a real database.
+A mobile-friendly web app for a small group to share, create, and reference pickleball drills during weekend sessions.
 
 ---
 
@@ -12,36 +12,34 @@ This app solves that. Any of the four can add a drill, describe the setup, assig
 
 ---
 
-## Current State (POC)
-
-- Single HTML file (`public/index.html`) served as a static site
-- No authentication — full access for all users
-- Storage: `window.storage` (Claude artifact shared storage) with `localStorage` fallback for standard browsers
-- Deployed to Vercel via GitHub push
-- **Known limitation:** `localStorage` is per-browser/per-device. Shared persistence across users requires a real backend (planned).
-
----
-
 ## Tech Stack
 
-| Layer | Current | Planned |
-|---|---|---|
-| Frontend | Vanilla HTML/CSS/JS | Same, or light framework if needed |
-| Server | Static (Vercel) | Node/Express API routes |
-| Storage | localStorage / window.storage | Postgres (Supabase or Neon) |
-| Deploy | Vercel via GitHub | Same |
-| Dev tooling | Claude Code in VS Code | Same |
+| Layer | What |
+|---|---|
+| Frontend | Vanilla HTML/CSS/JS, Vite |
+| API | Vercel serverless functions (`api/`) |
+| Storage | Neon Postgres (single JSONB row, whole-array pattern) |
+| Deploy | Vercel via GitHub push to `master` |
+| Dev tooling | Claude Code in VS Code |
 
 ---
 
 ## Local Development
+
+Requires a `.env.local` file in the project root:
+
+```
+DATABASE_URL=postgresql://...your neon pooled connection string...
+```
 
 ```bash
 npm install
 npm run dev
 ```
 
-Opens at `http://localhost:5173`. Uses `localStorage` for persistence in a standard browser.
+`npm run dev` runs Vite and a local Express API server concurrently. Vite proxies all `/api/*` requests to the Express server on port 3001, which loads `DATABASE_URL` from `.env.local` and uses the same handler as production.
+
+Opens at `http://localhost:5173`.
 
 ```bash
 npm run build    # production build → dist/
@@ -50,7 +48,7 @@ npm run preview  # preview the production build locally
 
 ### Deploy
 
-Push to `main` on GitHub. Vercel autodeploys on every push — runs `npm run build` and serves from `dist/`. Config is in `vercel.json`.
+Push to `master` on GitHub. Vercel autodeploys on every push — runs `npm run build` and serves `dist/`. Config is in `vercel.json`.
 
 ```bash
 git add .
@@ -69,7 +67,7 @@ pickleball-drills/
 │   ├── main.js             # Entry point: imports, window bindings, init
 │   ├── style.css           # All styles
 │   ├── constants.js        # PLAYER_COLORS, GRID_*, court dimensions, ALL_TAGS
-│   ├── defaultDrills.js    # Seed data for first load
+│   ├── defaultDrills.js    # Seed data (used by api/drills.js on first load)
 │   ├── state.js            # Shared mutable state object
 │   ├── storage.js          # Storage abstraction, loadDrills(), saveDrills()
 │   ├── court.js            # gridToXY(), buildCourtSVG()
@@ -78,19 +76,77 @@ pickleball-drills/
 │   ├── library.js          # renderLibrary(), setFilter()
 │   ├── detail.js           # openDrill()
 │   └── creator.js          # All creator/form logic, saveDrill(), deleteCurrentDrill()
-├── public/                 # Static assets (favicon etc.) — copied to dist/ verbatim
-├── package.json            # Vite dev/build scripts
-├── vercel.json             # Build command + output directory
-├── .gitignore
-└── README.md
+├── api/
+│   └── drills.js           # Serverless function: GET seeds + returns, PUT upserts
+├── db/
+│   └── schema.sql          # One-time setup — run in Neon SQL editor
+├── server.dev.js           # Local Express API server (dev only, not deployed)
+├── vite.config.js          # Proxies /api/* to local Express server in dev
+├── public/                 # Static assets — copied to dist/ verbatim
+├── package.json
+├── vercel.json
+└── .gitignore
 ```
 
-When a backend is added:
+---
 
+## Database
+
+A single Neon Postgres table:
+
+```sql
+CREATE TABLE IF NOT EXISTS kv_store (
+  key        TEXT PRIMARY KEY,
+  value      JSONB NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
 ```
-├── api/                    # Vercel serverless functions
-└── db/                     # Schema, migrations
+
+The entire drills array is stored as one JSONB value under the key `'drills'`. On first `GET /api/drills`, if the table is empty, the API seeds from `DEFAULT_DRILLS` in `api/drills.js`. Every subsequent load reads that single row; every save upserts it.
+
+**Scaling note:** At 4 users and a few dozen drills this design is fine — primary key lookup, no full scans. If the library ever grows to hundreds of drills, the right migration is per-row storage (`id TEXT PRIMARY KEY, data JSONB`) with proper REST endpoints. The frontend already tracks drills by ID so the change would be isolated to `api/drills.js` and `src/storage.js`.
+
+---
+
+## Storage Abstraction
+
+`src/storage.js` has three branches, tried in order:
+
+```js
+const storage = {
+  async get(key) {
+    if (window.storage && window.storage.get) {   // Claude artifact env
+      const result = await window.storage.get(key, true);
+      return result ? result.value : null;
+    }
+    try {                                          // production + local dev (via proxy)
+      const res = await fetch(`/api/${key}`);
+      if (!res.ok) throw new Error(`API ${res.status}`);
+      const data = await res.json();
+      return JSON.stringify(data[key]);
+    } catch (e) {
+      return localStorage.getItem(key);            // fallback
+    }
+  },
+  async set(key, value) {
+    if (window.storage && window.storage.set) {
+      await window.storage.set(key, value, true);
+      return;
+    }
+    try {
+      await fetch(`/api/${key}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [key]: JSON.parse(value) }),
+      });
+    } catch (e) {
+      localStorage.setItem(key, value);
+    }
+  },
+};
 ```
+
+`loadDrills()` and `saveDrills()` are not aware of which branch is active — they just call `storage.get` and `storage.set`.
 
 ---
 
@@ -125,6 +181,8 @@ Each drill object:
   notes: string[]           // coaching cues, one per entry
 }
 ```
+
+**Stale check:** `loadDrills()` wipes and reseeds from defaults if any stored drill is missing `startPositions`. This acts as an implicit migration guard — if a required field is added and old DB data lacks it, all drills reset. Intentional for now given the small user base.
 
 ---
 
@@ -187,43 +245,12 @@ Two simultaneous cross-court dink rallies. P1↔P4 and P2↔P3. All four players
 
 ---
 
-## Storage Abstraction
-
-The storage layer is abstracted so swapping in a real backend touches one place:
-
-```js
-const storage = {
-  async get(key) {
-    if (window.storage && window.storage.get) {
-      // Claude artifact shared storage
-      const result = await window.storage.get(key, true);
-      return result ? result.value : null;
-    }
-    return localStorage.getItem(key);   // standard browser fallback
-  },
-  async set(key, value) {
-    if (window.storage && window.storage.set) {
-      await window.storage.set(key, value, true);
-    } else {
-      localStorage.setItem(key, value); // standard browser fallback
-    }
-  }
-};
-```
-
-When adding a backend: add a third branch that calls your API route. No other changes needed in `loadDrills` or `saveDrills`.
-
----
-
 ## Known Issues / Next Steps
 
-- [ ] Replace `localStorage` with a real database (Postgres via Supabase or Neon recommended)
-- [ ] Add API routes (Vercel serverless functions or Express)
-- [ ] Court graphic shows starting positions only — step-by-step court animation is explicitly deferred (complexity not worth it at POC stage)
+- [ ] Court graphic shows starting positions only — step-by-step court animation is explicitly deferred
 - [ ] No drill reordering in the library
-- [ ] Steps beyond 5 are silently dropped in the CSV export
-- [ ] Player count selector exists (1–4) but all sample drills and conventions assume 4 players; sub-4 support is untested
-- [ ] No import from CSV (export only for now)
+- [ ] Player count selector exists (1–4) but all drills assume 4 players; sub-4 support is untested
+- [ ] No authentication — anyone with the URL has full access (acceptable: it's four people, not a product)
 
 ---
 
@@ -232,4 +259,3 @@ When adding a backend: add a third branch that calls your API route. No other ch
 - Fonts: Barlow Condensed (display/headings), Barlow (body), DM Mono (labels, tags, code)
 - Color palette: dark green background (`#0f1410`), lime accent (`#b5e853`), teal secondary (`#53e8a0`)
 - All layout decisions prioritize mobile readability — this gets used on a phone at the court
-- No authentication planned for the near term — it's four people, not a product
