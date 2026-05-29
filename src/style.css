@@ -189,6 +189,14 @@ nav { background: var(--surface); border-bottom: 1px solid var(--border); paddin
 
 .creator-actions { padding: 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
 
+/* COURT MODAL */
+.court-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 500; align-items: center; justify-content: center; }
+.court-modal.open { display: flex; }
+.court-modal-inner { width: 90vw; max-width: 480px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 12px; }
+.court-modal-inner svg { width: 100%; height: auto; display: block; }
+.step-court-preview { cursor: pointer; }
+.step-court-preview:hover { opacity: 0.85; }
+
 /* TOAST */
 .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--accent); color: var(--accent-text); font-family: var(--font-mono); font-size: 13px; padding: 10px 20px; border-radius: 6px; transition: transform 0.25s ease; z-index: 1000; white-space: nowrap; pointer-events: none; }
 .toast.show { transform: translateX(-50%) translateY(0); }

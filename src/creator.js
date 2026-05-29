@@ -32,6 +32,20 @@ export function showCreator(id) {
   showView('creator');
 }
 
+export function openCourtModal(idx) {
+  const positions = {};
+  PLAYER_LABELS.forEach(label => {
+    const el = document.getElementById(`step-pos-${idx}-${label}`);
+    if (el && el.value.trim()) positions[label] = el.value.trim().toUpperCase();
+  });
+  document.getElementById('court-modal-svg').innerHTML = buildCourtSVG(positions);
+  document.getElementById('court-modal').classList.add('open');
+}
+
+export function closeCourtModal() {
+  document.getElementById('court-modal').classList.remove('open');
+}
+
 export function renderStepCourt(idx) {
   const positions = {};
   PLAYER_LABELS.forEach(label => {
@@ -130,7 +144,7 @@ export function addStepField(title = '', desc = '', positions = {}) {
       <button class="step-remove" onclick="removeStep(${idx})">×</button>
     </div>
     <div class="step-court-editor">
-      <div class="step-court-preview">
+      <div class="step-court-preview" onclick="openCourtModal(${idx})" title="Tap to enlarge">
         <svg id="step-court-svg-${idx}" viewBox="0 0 390 540" xmlns="http://www.w3.org/2000/svg"></svg>
       </div>
       <div class="step-position-inputs">${posInputs}</div>

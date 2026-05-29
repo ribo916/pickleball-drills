@@ -8,6 +8,8 @@ import { showRandomizer, pickRandomDrill, openPickedDrill } from './randomizer.j
 import {
   showCreator,
   renderStepCourt,
+  openCourtModal,
+  closeCourtModal,
   toggleTag,
   addCustomTag,
   addStepField,
@@ -23,6 +25,8 @@ window.showCreator = showCreator;
 window.openDrill = openDrill;
 window.setFilter = setFilter;
 window.renderStepCourt = renderStepCourt;
+window.openCourtModal = openCourtModal;
+window.closeCourtModal = closeCourtModal;
 window.stepNav = stepNav;
 window.toggleTag = toggleTag;
 window.addCustomTag = addCustomTag;
