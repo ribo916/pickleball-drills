@@ -20,8 +20,8 @@ export function gridToXY(coord) {
 export function buildCourtSVG(positions) {
   let s = '';
 
-  // Court surface — drawn first so grid cells layer on top
-  s += `<rect x="${COURT_X}" y="${COURT_Y}" width="${COURT_W}" height="${COURT_H}" rx="3" fill="#243528"/>`;
+  // Court surface
+  s += `<rect x="${COURT_X}" y="${COURT_Y}" width="${COURT_W}" height="${COURT_H}" rx="3" style="fill: var(--surface2)"/>`;
 
   // All grid cells (8 cols × 10 rows)
   for (let r = 0; r < GRID_ROWS; r++) {
@@ -33,52 +33,45 @@ export function buildCourtSVG(positions) {
                       r >= COURT_ROW_START && r < COURT_ROW_START + 8;
 
       if (!inCourt) {
-        // Off-court cell — dark, clearly outside the playing surface
-        s += `<rect x="${x}" y="${y}" width="${CELL_W}" height="${CELL_H}" fill="#141a15" stroke="#1e2a1f" stroke-width="0.5"/>`;
+        s += `<rect x="${x}" y="${y}" width="${CELL_W}" height="${CELL_H}" style="fill: var(--bg); stroke: var(--border); stroke-width: 0.5"/>`;
       } else {
-        // Court cell — NVZ rows get a darker overlay
-        const courtRow = r - COURT_ROW_START; // 0-indexed within the court (0–7)
-        const isNVZ = courtRow === 2 || courtRow === 3 || courtRow === 4 || courtRow === 5;
-        const fill = isNVZ ? '#1e3322' : 'none';
-        s += `<rect x="${x}" y="${y}" width="${CELL_W}" height="${CELL_H}" fill="${fill}" stroke="#2e4a32" stroke-width="0.5" opacity="0.7"/>`;
+        const courtRow = r - COURT_ROW_START;
+        const isNVZ = courtRow >= 2 && courtRow <= 5;
+        const fill = isNVZ ? 'var(--surface)' : 'none';
+        s += `<rect x="${x}" y="${y}" width="${CELL_W}" height="${CELL_H}" style="fill: ${fill}; stroke: var(--border); stroke-width: 0.5; opacity: 0.7"/>`;
       }
     }
   }
 
-  // Column labels (A-H) above the top margin
+  // Column labels (A-H)
   GRID_COLS.forEach((col, i) => {
     const x = COURT_PAD_X + i * CELL_W + CELL_W / 2;
-    s += `<text x="${x}" y="${COURT_PAD_TOP - 6}" text-anchor="middle" fill="#4a664d" font-size="9" font-family="DM Mono, monospace">${col}</text>`;
+    s += `<text x="${x}" y="${COURT_PAD_TOP - 6}" text-anchor="middle" style="fill: var(--text-muted)" font-size="9" font-family="DM Mono, monospace">${col}</text>`;
   });
 
-  // Row labels (1-10) to the left
+  // Row labels (1-10)
   for (let r = 0; r < GRID_ROWS; r++) {
     const y = COURT_PAD_TOP + r * CELL_H + CELL_H / 2 + 3;
-    s += `<text x="${COURT_PAD_X - 6}" y="${y}" text-anchor="end" fill="#4a664d" font-size="9" font-family="DM Mono, monospace">${r + 1}</text>`;
+    s += `<text x="${COURT_PAD_X - 6}" y="${y}" text-anchor="end" style="fill: var(--text-muted)" font-size="9" font-family="DM Mono, monospace">${r + 1}</text>`;
   }
 
-  // NVZ lines — span the court width only (not the outer cells)
-  s += `<line x1="${COURT_X}" y1="${NVZ_TOP_Y}" x2="${COURT_X + COURT_W}" y2="${NVZ_TOP_Y}" stroke="#5a8a5e" stroke-width="1.5"/>`;
-  s += `<line x1="${COURT_X}" y1="${NVZ_BOT_Y}" x2="${COURT_X + COURT_W}" y2="${NVZ_BOT_Y}" stroke="#5a8a5e" stroke-width="1.5"/>`;
+  // NVZ lines
+  s += `<line x1="${COURT_X}" y1="${NVZ_TOP_Y}" x2="${COURT_X + COURT_W}" y2="${NVZ_TOP_Y}" style="stroke: var(--text-dim); stroke-width: 1.5"/>`;
+  s += `<line x1="${COURT_X}" y1="${NVZ_BOT_Y}" x2="${COURT_X + COURT_W}" y2="${NVZ_BOT_Y}" style="stroke: var(--text-dim); stroke-width: 1.5"/>`;
 
-  // NVZ labels — positioned after the outer-right column
-  const nvzLabelX = COURT_X + COURT_W + CELL_W + 4;
-  s += `<text x="${nvzLabelX}" y="${NVZ_TOP_Y - 2}" fill="#4a664d" font-size="7.5" font-family="DM Mono, monospace">NVZ</text>`;
-  s += `<text x="${nvzLabelX}" y="${NVZ_BOT_Y + 9}" fill="#4a664d" font-size="7.5" font-family="DM Mono, monospace">NVZ</text>`;
-
-  // Center line — court interior only
-  s += `<line x1="${COURT_X + COURT_W / 2}" y1="${COURT_Y}" x2="${COURT_X + COURT_W / 2}" y2="${COURT_Y + COURT_H}" stroke="#2e4a32" stroke-width="1"/>`;
+  // Center line
+  s += `<line x1="${COURT_X + COURT_W / 2}" y1="${COURT_Y}" x2="${COURT_X + COURT_W / 2}" y2="${COURT_Y + COURT_H}" style="stroke: var(--border); stroke-width: 1"/>`;
 
   // Net
-  s += `<rect x="${COURT_X}" y="${NET_Y - 3}" width="${COURT_W}" height="6" rx="2" fill="#4a7a4e"/>`;
-  s += `<text x="${COURT_X + COURT_W / 2}" y="${NET_Y + 1.5}" text-anchor="middle" dominant-baseline="middle" fill="#7aaa7e" font-size="8" font-family="DM Mono, monospace">NET</text>`;
+  s += `<rect x="${COURT_X}" y="${NET_Y - 3}" width="${COURT_W}" height="6" rx="2" style="fill: var(--border)"/>`;
+  s += `<text x="${COURT_X + COURT_W / 2}" y="${NET_Y + 1.5}" text-anchor="middle" dominant-baseline="middle" style="fill: var(--text-dim)" font-size="8" font-family="DM Mono, monospace">NET</text>`;
 
-  // Court border — drawn on top so it's crisp over the grid cells
-  s += `<rect x="${COURT_X}" y="${COURT_Y}" width="${COURT_W}" height="${COURT_H}" rx="3" fill="none" stroke="#4a7a4e" stroke-width="1.5"/>`;
+  // Court border
+  s += `<rect x="${COURT_X}" y="${COURT_Y}" width="${COURT_W}" height="${COURT_H}" rx="3" style="fill: none; stroke: var(--text-dim); stroke-width: 1.5"/>`;
 
-  // Team labels — centered inside the court, top and bottom halves
-  s += `<text x="${COURT_X + COURT_W / 2}" y="${COURT_Y + CELL_H}" text-anchor="middle" fill="#3a5a3e" font-size="10" font-family="DM Mono, monospace" font-weight="500">TEAM A</text>`;
-  s += `<text x="${COURT_X + COURT_W / 2}" y="${COURT_Y + CELL_H * 7}" text-anchor="middle" fill="#3a5a3e" font-size="10" font-family="DM Mono, monospace" font-weight="500">TEAM B</text>`;
+  // Team labels
+  s += `<text x="${COURT_X + COURT_W / 2}" y="${COURT_Y + CELL_H}" text-anchor="middle" style="fill: var(--text-muted)" font-size="10" font-family="DM Mono, monospace" font-weight="500">TEAM A</text>`;
+  s += `<text x="${COURT_X + COURT_W / 2}" y="${COURT_Y + CELL_H * 7}" text-anchor="middle" style="fill: var(--text-muted)" font-size="10" font-family="DM Mono, monospace" font-weight="500">TEAM B</text>`;
 
   // Player tokens
   PLAYER_LABELS.forEach((label, i) => {

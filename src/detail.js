@@ -25,26 +25,39 @@ export function openDrill(id) {
   if (hasPositions) svg.innerHTML = buildCourtSVG(drill.startPositions);
 
   // Steps
-  document.getElementById('steps-list').innerHTML = drill.steps.map((s, i) => `
-    <div class="step-item">
-      <div class="step-number">${i + 1}</div>
-      <div>
-        <div class="step-title">${esc(s.title)}</div>
-        <div class="step-desc">${esc(s.desc)}</div>
+  const stepsWrap = document.getElementById('steps-section-wrap');
+  if (drill.steps && drill.steps.length) {
+    document.getElementById('steps-list').innerHTML = drill.steps.map((s, i) => `
+      <div class="step-item">
+        <div class="step-number">${i + 1}</div>
+        <div>
+          <div class="step-title">${esc(s.title)}</div>
+          <div class="step-desc">${esc(s.desc)}</div>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `).join('');
+    stepsWrap.style.display = '';
+  } else {
+    stepsWrap.style.display = 'none';
+  }
 
   // Roles
-  document.getElementById('role-list').innerHTML = drill.roles.map((r, i) => `
-    <div class="role-item">
-      <div class="role-dot" style="background:${PLAYER_COLORS[i]}20;color:${PLAYER_COLORS[i]};border:1.5px solid ${PLAYER_COLORS[i]}">${PLAYER_LABELS[i]}</div>
-      <div>
-        <div class="role-name">${esc(r.label)}</div>
-        <div class="role-desc">${esc(r.desc)}</div>
+  const rolesWrap = document.getElementById('roles-section-wrap');
+  const hasRoles = drill.roles && drill.roles.some(r => r.desc || (r.label && !PLAYER_LABELS.includes(r.label)));
+  if (hasRoles) {
+    document.getElementById('role-list').innerHTML = drill.roles.map((r, i) => `
+      <div class="role-item">
+        <div class="role-dot" style="background:${PLAYER_COLORS[i]}20;color:${PLAYER_COLORS[i]};border:1.5px solid ${PLAYER_COLORS[i]}">${PLAYER_LABELS[i]}</div>
+        <div>
+          <div class="role-name">${esc(r.label)}</div>
+          <div class="role-desc">${esc(r.desc)}</div>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `).join('');
+    rolesWrap.style.display = '';
+  } else {
+    rolesWrap.style.display = 'none';
+  }
 
   // Notes
   const notesList = document.getElementById('notes-list');
