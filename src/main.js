@@ -3,12 +3,11 @@ import { initTheme, setTheme, toggleThemePicker } from './theme.js';
 import { loadDrills } from './storage.js';
 import { renderLibrary, setFilter } from './library.js';
 import { showView } from './navigation.js';
-import { openDrill } from './detail.js';
+import { openDrill, stepNav } from './detail.js';
 import { showRandomizer, pickRandomDrill, openPickedDrill } from './randomizer.js';
 import {
   showCreator,
-  updateCreatorCourt,
-  renderCreatorCourt,
+  renderStepCourt,
   toggleTag,
   addCustomTag,
   addStepField,
@@ -23,8 +22,8 @@ window.showView = showView;
 window.showCreator = showCreator;
 window.openDrill = openDrill;
 window.setFilter = setFilter;
-window.updateCreatorCourt = updateCreatorCourt;
-window.renderCreatorCourt = renderCreatorCourt;
+window.renderStepCourt = renderStepCourt;
+window.stepNav = stepNav;
 window.toggleTag = toggleTag;
 window.addCustomTag = addCustomTag;
 window.addStepField = addStepField;

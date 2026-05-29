@@ -76,19 +76,16 @@
     <div class="section-label">Coaching Notes</div>
     <ul class="notes-list" id="notes-list"></ul>
   </div>
-  <div class="court-section" id="court-section">
-    <div class="section-label">Starting Positions</div>
-    <div class="court-wrap">
-      <svg id="detail-court-svg" viewBox="0 0 390 540" xmlns="http://www.w3.org/2000/svg"></svg>
-    </div>
-  </div>
+  <div id="legacy-court-section" class="legacy-court-section"></div>
   <div class="steps-section" id="steps-section-wrap">
-    <div class="section-label">Steps</div>
-    <div class="steps-list" id="steps-list"></div>
-  </div>
-  <div class="roles-section" id="roles-section-wrap">
-    <div class="section-label">Player Roles</div>
-    <div class="role-list" id="role-list"></div>
+    <div class="step-slideshow">
+      <div class="step-slide-header">
+        <button class="step-nav-btn" id="step-prev" onclick="stepNav(-1)">‹</button>
+        <div class="step-slide-indicator" id="step-indicator"></div>
+        <button class="step-nav-btn" id="step-next" onclick="stepNav(1)">›</button>
+      </div>
+      <div id="step-slide"></div>
+    </div>
   </div>
   <div class="detail-actions">
     <button class="btn btn-ghost" onclick="editCurrentDrill()">Edit drill</button>
@@ -110,7 +107,7 @@
       </div>
       <div class="form-group">
         <label class="form-label">Player Count</label>
-        <select class="form-select" id="f-players" onchange="updateCreatorCourt()">
+        <select class="form-select" id="f-players">
           <option value="4">4 players</option>
           <option value="3">3 players</option>
           <option value="2">2 players</option>
@@ -142,25 +139,10 @@
       <textarea class="form-textarea" id="f-notes" placeholder="Watch for early wrist snap&#10;Reset if rally breaks down"></textarea>
     </div>
 
-    <!-- POSITION EDITOR -->
     <div class="form-group">
-      <label class="form-label">Starting Positions</label>
-      <div class="position-editor">
-        <div class="position-editor-court">
-          <svg id="creator-court-svg" viewBox="0 0 390 540" xmlns="http://www.w3.org/2000/svg"></svg>
-          <div class="position-inputs" id="position-inputs"></div>
-          <div class="position-hint" style="margin-top:8px">Columns A–H · Rows 1–10 · Court: B–G, rows 2–9 · Off-court: col A, col H, rows 1 and 10 · e.g. C3, F9</div>
-        </div>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Drill Steps</label>
+      <label class="form-label">Steps</label>
       <div class="step-builder" id="step-builder"></div>
       <button class="add-step-btn" onclick="addStepField()">+ Add Step</button>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Player Roles</label>
-      <div class="role-builder" id="role-builder"></div>
     </div>
   </div>
   <div class="creator-actions">

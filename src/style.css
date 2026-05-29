@@ -123,26 +123,25 @@ nav { background: var(--surface); border-bottom: 1px solid var(--border); paddin
 /* SECTION LABEL (shared) */
 .section-label { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: 8px; }
 
-/* COURT SVG */
-.court-section { padding: 0 16px; margin-bottom: 24px; }
+/* COURT (legacy + reused in step cards) */
 .court-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
-#detail-court-svg { width: 100%; height: auto; display: block; }
+.court-wrap svg { width: 100%; height: auto; display: block; }
+.legacy-court-section { padding: 0 16px; margin-bottom: 16px; }
 
-/* STEPS */
+/* STEPS SLIDESHOW */
 .steps-section { padding: 0 16px; margin-bottom: 16px; }
-.steps-list { display: grid; gap: 8px; }
-.step-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; }
-.step-number { font-family: var(--font-mono); font-size: 11px; color: var(--accent); background: var(--tag-bg); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; flex-shrink: 0; margin-top: 2px; }
-.step-title { font-family: var(--font-display); font-weight: 700; font-size: 16px; margin-bottom: 3px; }
+.step-slideshow { display: grid; gap: 10px; }
+.step-slide-header { display: flex; align-items: center; justify-content: space-between; }
+.step-slide-indicator { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; }
+.step-nav-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 22px; padding: 2px 16px; cursor: pointer; transition: all 0.15s; line-height: 1.5; }
+.step-nav-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.step-nav-btn:disabled { opacity: 0.25; cursor: default; }
+.step-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.step-card-court { padding: 12px 12px 0; }
+.step-card-court svg { width: 100%; height: auto; display: block; }
+.step-card-body { padding: 14px; }
+.step-title { font-family: var(--font-display); font-weight: 700; font-size: 18px; margin-bottom: 6px; }
 .step-desc { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
-
-/* ROLES */
-.roles-section { padding: 0 16px; margin-bottom: 16px; }
-.role-list { display: grid; gap: 8px; }
-.role-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; display: flex; gap: 10px; align-items: flex-start; }
-.role-dot { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 10px; font-weight: 500; flex-shrink: 0; margin-top: 1px; }
-.role-name { font-family: var(--font-display); font-weight: 700; font-size: 15px; margin-bottom: 2px; }
-.role-desc { font-size: 13px; color: var(--text-dim); line-height: 1.4; }
 
 /* NOTES */
 .notes-section { padding: 0 16px 16px; }
@@ -168,20 +167,11 @@ nav { background: var(--surface); border-bottom: 1px solid var(--border); paddin
 .tag-toggle.selected { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
 .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-/* POSITION EDITOR */
-.position-editor { display: grid; gap: 10px; }
-.position-editor-court { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 10px; }
-#creator-court-svg { width: 100%; height: auto; display: block; margin-bottom: 10px; }
-.position-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+/* POSITION INPUTS (shared — used inside step cards in creator) */
 .position-input-row { display: flex; align-items: center; gap: 8px; }
 .position-label { font-family: var(--font-mono); font-size: 12px; font-weight: 500; width: 28px; flex-shrink: 0; }
 .position-input { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: var(--font-mono); font-size: 13px; padding: 7px 10px; width: 70px; outline: none; text-transform: uppercase; transition: border-color 0.15s; }
 .position-input:focus { border-color: var(--accent); }
-.position-hint { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); }
-
-/* ROLE BUILDER */
-.role-builder { display: grid; gap: 8px; }
-.role-row { display: grid; grid-template-columns: 90px 1fr; gap: 8px; align-items: start; }
 
 /* STEP BUILDER */
 .step-builder { display: grid; gap: 10px; }
@@ -190,6 +180,10 @@ nav { background: var(--surface); border-bottom: 1px solid var(--border); paddin
 .step-item-label { font-family: var(--font-mono); font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; }
 .step-remove { font-size: 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; line-height: 1; padding: 0 4px; }
 .step-remove:hover { color: var(--danger); }
+.step-court-editor { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 6px; }
+.step-court-preview { flex: 0 0 120px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px; }
+.step-court-preview svg { width: 100%; height: auto; display: block; }
+.step-position-inputs { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; align-content: flex-start; }
 .add-step-btn { font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; padding: 10px; border: 1px dashed var(--border); border-radius: var(--radius); background: transparent; color: var(--text-muted); cursor: pointer; width: 100%; transition: all 0.15s; }
 .add-step-btn:hover { border-color: var(--accent); color: var(--accent); }
 
@@ -238,7 +232,6 @@ nav { background: var(--surface); border-bottom: 1px solid var(--border); paddin
   .drill-grid { grid-template-columns: 1fr 1fr; }
   .form-body { max-width: 600px; }
   .creator-header, .creator-actions { max-width: 632px; }
-  .position-inputs { grid-template-columns: 1fr 1fr 1fr 1fr; }
 }
 
 /* THEME PICKER */

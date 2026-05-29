@@ -11,21 +11,11 @@ export function showCreator(id) {
   state.stepCount = 0;
   document.getElementById('creator-title').textContent = id ? 'Edit Drill' : 'New Drill';
 
-  // Tags
   document.getElementById('tag-picker').innerHTML = ALL_TAGS.map(t =>
     `<button class="tag-toggle" data-tag="${t}" onclick="toggleTag(this,'${t}')">${t}</button>`
   ).join('');
 
-  // Steps
   document.getElementById('step-builder').innerHTML = '';
-
-  // Roles
-  document.getElementById('role-builder').innerHTML = [0, 1, 2, 3].map(i => `
-    <div class="role-row">
-      <input class="form-input" id="role-label-${i}" placeholder="${PLAYER_LABELS[i]} role" style="padding:8px 10px;font-size:13px"/>
-      <textarea class="form-textarea" id="role-desc-${i}" placeholder="What ${PLAYER_LABELS[i]} does..." style="min-height:60px;font-size:13px"></textarea>
-    </div>
-  `).join('');
 
   if (id) {
     const drill = state.drills.find(d => d.id === id);
@@ -39,36 +29,17 @@ export function showCreator(id) {
     addStepField();
   }
 
-  buildPositionInputs();
   showView('creator');
 }
 
-export function buildPositionInputs() {
-  const count = parseInt(document.getElementById('f-players').value);
-  const container = document.getElementById('position-inputs');
-  container.innerHTML = PLAYER_LABELS.slice(0, count).map((label, i) => `
-    <div class="position-input-row">
-      <div class="position-label" style="color:${PLAYER_COLORS[i]}">${label}</div>
-      <input class="position-input" id="pos-${label}" maxlength="3"
-        placeholder="—" oninput="renderCreatorCourt()"
-        style="border-color:${PLAYER_COLORS[i]}40"/>
-    </div>
-  `).join('');
-  renderCreatorCourt();
-}
-
-export function updateCreatorCourt() {
-  buildPositionInputs();
-}
-
-export function renderCreatorCourt() {
-  const count = parseInt(document.getElementById('f-players').value);
+export function renderStepCourt(idx) {
   const positions = {};
-  PLAYER_LABELS.slice(0, count).forEach(label => {
-    const el = document.getElementById(`pos-${label}`);
+  PLAYER_LABELS.forEach(label => {
+    const el = document.getElementById(`step-pos-${idx}-${label}`);
     if (el && el.value.trim()) positions[label] = el.value.trim().toUpperCase();
   });
-  document.getElementById('creator-court-svg').innerHTML = buildCourtSVG(positions);
+  const svg = document.getElementById(`step-court-svg-${idx}`);
+  if (svg) svg.innerHTML = buildCourtSVG(positions);
 }
 
 function prefillForm(drill) {
@@ -85,26 +56,13 @@ function prefillForm(drill) {
   const picker = document.getElementById('tag-picker');
   (drill.tags || []).filter(t => !ALL_TAGS.includes(t)).forEach(t => picker.appendChild(makeCustomTagBtn(t)));
 
-  drill.roles.forEach((r, i) => {
-    const l = document.getElementById(`role-label-${i}`);
-    const d = document.getElementById(`role-desc-${i}`);
-    if (l) l.value = r.label;
-    if (d) d.value = r.desc;
-  });
-
   document.getElementById('step-builder').innerHTML = '';
   state.stepCount = 0;
-  drill.steps.forEach(s => addStepField(s.title, s.desc));
-
-  if (drill.startPositions) {
-    setTimeout(() => {
-      Object.entries(drill.startPositions).forEach(([label, coord]) => {
-        const el = document.getElementById(`pos-${label}`);
-        if (el) el.value = coord;
-      });
-      renderCreatorCourt();
-    }, 0);
-  }
+  (drill.steps || []).forEach((s, i) => {
+    // Migrate old drills: seed first step with top-level startPositions if step has none
+    const positions = s.positions || (i === 0 && drill.startPositions ? drill.startPositions : {});
+    addStepField(s.title, s.desc, positions);
+  });
 }
 
 function makeCustomTagBtn(tag) {
@@ -152,8 +110,17 @@ export function toggleTag(btn, tag) {
   }
 }
 
-export function addStepField(title = '', desc = '') {
+export function addStepField(title = '', desc = '', positions = {}) {
   const idx = state.stepCount++;
+  const posInputs = PLAYER_LABELS.map((label, i) => `
+    <div class="position-input-row">
+      <div class="position-label" style="color:${PLAYER_COLORS[i]}">${label}</div>
+      <input class="position-input" id="step-pos-${idx}-${label}" maxlength="3"
+        placeholder="e.g. C3" oninput="renderStepCourt(${idx})"
+        style="border-color:${PLAYER_COLORS[i]}40"/>
+    </div>
+  `).join('');
+
   const div = document.createElement('div');
   div.className = 'step-item-builder';
   div.id = `step-${idx}`;
@@ -162,12 +129,26 @@ export function addStepField(title = '', desc = '') {
       <div class="step-item-label">Step ${idx + 1}</div>
       <button class="step-remove" onclick="removeStep(${idx})">×</button>
     </div>
-    <div class="form-group" style="margin-bottom:8px">
+    <div class="step-court-editor">
+      <div class="step-court-preview">
+        <svg id="step-court-svg-${idx}" viewBox="0 0 390 540" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="step-position-inputs">${posInputs}</div>
+    </div>
+    <div class="form-group" style="margin-bottom:8px;margin-top:10px">
       <input class="form-input" id="step-title-${idx}" placeholder="Step title" value="${esc(title)}" style="font-size:13px;padding:8px 10px"/>
     </div>
     <textarea class="form-textarea" id="step-desc-${idx}" placeholder="What happens in this step?" style="min-height:64px;font-size:13px">${esc(desc)}</textarea>
   `;
   document.getElementById('step-builder').appendChild(div);
+
+  PLAYER_LABELS.forEach(label => {
+    if (positions && positions[label]) {
+      const el = document.getElementById(`step-pos-${idx}-${label}`);
+      if (el) el.value = positions[label];
+    }
+  });
+  renderStepCourt(idx);
 }
 
 export function removeStep(idx) {
@@ -181,31 +162,23 @@ export async function saveDrill() {
 
   const players = parseInt(document.getElementById('f-players').value);
 
-  const startPositions = {};
-  PLAYER_LABELS.slice(0, players).forEach(label => {
-    const el = document.getElementById(`pos-${label}`);
-    if (el && el.value.trim()) {
-      const v = el.value.trim().toUpperCase();
-      if (gridToXY(v)) startPositions[label] = v;
-    }
-  });
-
   const steps = [];
   document.querySelectorAll('.step-item-builder').forEach((el, i) => {
     const id = el.id.replace('step-', '');
     const t = document.getElementById(`step-title-${id}`)?.value.trim() || '';
     const d = document.getElementById(`step-desc-${id}`)?.value.trim() || '';
-    if (t || d) steps.push({ title: t || `Step ${i + 1}`, desc: d });
-  });
-
-  const roles = [];
-  for (let i = 0; i < players && i < 4; i++) {
-    roles.push({
-      label: document.getElementById(`role-label-${i}`)?.value.trim() || PLAYER_LABELS[i],
-      color: i,
-      desc: document.getElementById(`role-desc-${i}`)?.value.trim() || '',
+    const positions = {};
+    PLAYER_LABELS.forEach(label => {
+      const pos = document.getElementById(`step-pos-${id}-${label}`);
+      if (pos && pos.value.trim()) {
+        const v = pos.value.trim().toUpperCase();
+        if (gridToXY(v)) positions[label] = v;
+      }
     });
-  }
+    if (t || d || Object.keys(positions).length > 0) {
+      steps.push({ title: t || `Step ${i + 1}`, desc: d, positions });
+    }
+  });
 
   const notesRaw = document.getElementById('f-notes').value.trim();
   const notes = notesRaw ? notesRaw.split('\n').map(s => s.trim()).filter(Boolean) : [];
@@ -217,8 +190,6 @@ export async function saveDrill() {
     desc: document.getElementById('f-desc').value.trim(),
     goal: document.getElementById('f-goal').value.trim(),
     tags: state.selectedTags,
-    startPositions,
-    roles,
     steps,
     notes,
   };

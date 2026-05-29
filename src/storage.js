@@ -38,10 +38,7 @@ export async function loadDrills() {
     const raw = await storage.get('drills');
     if (!raw) throw new Error('empty');
     const stored = JSON.parse(raw);
-    // Stale check: wipes and reseeds if any drill is missing required fields
-    const isStale = !Array.isArray(stored) || stored.length === 0 ||
-      stored.some(d => d.startPositions === undefined);
-    if (isStale) throw new Error('stale');
+    if (!Array.isArray(stored) || stored.length === 0) throw new Error('empty');
     state.drills = stored;
   } catch (e) {
     state.drills = JSON.parse(JSON.stringify(DEFAULT_DRILLS));

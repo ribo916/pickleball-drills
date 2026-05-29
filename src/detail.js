@@ -1,8 +1,48 @@
 import { state } from './state.js';
-import { PLAYER_COLORS, PLAYER_LABELS } from './constants.js';
 import { buildCourtSVG } from './court.js';
 import { esc } from './utils.js';
 import { showView } from './navigation.js';
+
+let currentStepIdx = 0;
+let currentSteps = [];
+
+function handleTouchStart(e) { _touchStartX = e.touches[0].clientX; }
+function handleTouchEnd(e) {
+  const dx = e.changedTouches[0].clientX - _touchStartX;
+  if (Math.abs(dx) > 50) stepNav(dx < 0 ? 1 : -1);
+}
+let _touchStartX = 0;
+
+export function stepNav(dir) {
+  currentStepIdx = Math.max(0, Math.min(currentSteps.length - 1, currentStepIdx + dir));
+  renderCurrentStep();
+}
+
+function renderCurrentStep() {
+  const s = currentSteps[currentStepIdx];
+  const total = currentSteps.length;
+
+  document.getElementById('step-indicator').textContent = `Step ${currentStepIdx + 1} / ${total}`;
+  document.getElementById('step-prev').disabled = currentStepIdx === 0;
+  document.getElementById('step-next').disabled = currentStepIdx === total - 1;
+
+  const hasPositions = s.positions && Object.keys(s.positions).length > 0;
+  const courtHtml = hasPositions
+    ? `<div class="step-card-court"><svg viewBox="0 0 390 540" xmlns="http://www.w3.org/2000/svg">${buildCourtSVG(s.positions)}</svg></div>`
+    : '';
+
+  document.getElementById('step-slide').innerHTML = `
+    <div class="step-card">
+      ${courtHtml}
+      <div class="step-card-body">
+        <div>
+          <div class="step-title">${esc(s.title)}</div>
+          <div class="step-desc">${esc(s.desc)}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
 
 export function openDrill(id) {
   state.currentDrillId = id;
@@ -18,45 +58,33 @@ export function openDrill(id) {
     <div class="label">Drill Goal</div><p>${esc(drill.goal)}</p>
   `;
 
-  // Court
-  const svg = document.getElementById('detail-court-svg');
-  const hasPositions = drill.startPositions && Object.keys(drill.startPositions).length > 0;
-  document.getElementById('court-section').style.display = hasPositions ? '' : 'none';
-  if (hasPositions) svg.innerHTML = buildCourtSVG(drill.startPositions);
+  // Legacy court — old drills with startPositions but no per-step positions
+  const legacySection = document.getElementById('legacy-court-section');
+  const hasLegacyPositions = drill.startPositions && Object.keys(drill.startPositions).length > 0;
+  const hasStepPositions = drill.steps && drill.steps.some(s => s.positions && Object.keys(s.positions).length > 0);
+  if (hasLegacyPositions && !hasStepPositions) {
+    legacySection.innerHTML = `<div class="court-wrap"><svg viewBox="0 0 390 540" xmlns="http://www.w3.org/2000/svg">${buildCourtSVG(drill.startPositions)}</svg></div>`;
+    legacySection.style.display = '';
+  } else {
+    legacySection.style.display = 'none';
+  }
 
-  // Steps
+  // Steps slideshow
   const stepsWrap = document.getElementById('steps-section-wrap');
   if (drill.steps && drill.steps.length) {
-    document.getElementById('steps-list').innerHTML = drill.steps.map((s, i) => `
-      <div class="step-item">
-        <div class="step-number">${i + 1}</div>
-        <div>
-          <div class="step-title">${esc(s.title)}</div>
-          <div class="step-desc">${esc(s.desc)}</div>
-        </div>
-      </div>
-    `).join('');
+    currentSteps = drill.steps;
+    currentStepIdx = 0;
+    renderCurrentStep();
+
+    const slide = document.getElementById('step-slide');
+    slide.removeEventListener('touchstart', handleTouchStart);
+    slide.removeEventListener('touchend', handleTouchEnd);
+    slide.addEventListener('touchstart', handleTouchStart, { passive: true });
+    slide.addEventListener('touchend', handleTouchEnd, { passive: true });
+
     stepsWrap.style.display = '';
   } else {
     stepsWrap.style.display = 'none';
-  }
-
-  // Roles
-  const rolesWrap = document.getElementById('roles-section-wrap');
-  const hasRoles = drill.roles && drill.roles.some(r => r.desc || (r.label && !PLAYER_LABELS.includes(r.label)));
-  if (hasRoles) {
-    document.getElementById('role-list').innerHTML = drill.roles.map((r, i) => `
-      <div class="role-item">
-        <div class="role-dot" style="background:${PLAYER_COLORS[i]}20;color:${PLAYER_COLORS[i]};border:1.5px solid ${PLAYER_COLORS[i]}">${PLAYER_LABELS[i]}</div>
-        <div>
-          <div class="role-name">${esc(r.label)}</div>
-          <div class="role-desc">${esc(r.desc)}</div>
-        </div>
-      </div>
-    `).join('');
-    rolesWrap.style.display = '';
-  } else {
-    rolesWrap.style.display = 'none';
   }
 
   // Notes
