@@ -100,7 +100,7 @@ function prefillForm(drill) {
         const el = document.getElementById(`pos-${label}`);
         if (el) el.value = coord;
       });
-      updateCreatorCourt();
+      renderCreatorCourt();
     }, 0);
   }
 }

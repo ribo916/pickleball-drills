@@ -11,7 +11,7 @@ function applyTheme(name) {
 }
 
 export function initTheme() {
-  const saved = localStorage.getItem('pickle-theme') || 'green';
+  const saved = localStorage.getItem('pickle-theme') || 'blue';
   applyTheme(saved);
   document.addEventListener('click', e => {
     if (!e.target.closest('.theme-btn-wrap')) {
@@ -29,7 +29,7 @@ export function toggleThemePicker() {
   const picker = document.getElementById('theme-picker');
   const isOpen = picker.classList.toggle('open');
   if (isOpen) {
-    const current = localStorage.getItem('pickle-theme') || 'green';
+    const current = localStorage.getItem('pickle-theme') || 'blue';
     document.querySelectorAll('.theme-option').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.theme === current);
     });
