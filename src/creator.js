@@ -13,7 +13,7 @@ export function showCreator(id) {
 
   // Tags
   document.getElementById('tag-picker').innerHTML = ALL_TAGS.map(t =>
-    `<button class="tag-toggle" onclick="toggleTag(this,'${t}')">${t}</button>`
+    `<button class="tag-toggle" data-tag="${t}" onclick="toggleTag(this,'${t}')">${t}</button>`
   ).join('');
 
   // Steps
@@ -80,8 +80,10 @@ function prefillForm(drill) {
 
   state.selectedTags = [...(drill.tags || [])];
   document.querySelectorAll('.tag-toggle').forEach(btn => {
-    if (state.selectedTags.includes(btn.textContent)) btn.classList.add('selected');
+    if (state.selectedTags.includes(btn.dataset.tag)) btn.classList.add('selected');
   });
+  const picker = document.getElementById('tag-picker');
+  drill.tags.filter(t => !ALL_TAGS.includes(t)).forEach(t => picker.appendChild(makeCustomTagBtn(t)));
 
   drill.roles.forEach((r, i) => {
     const l = document.getElementById(`role-label-${i}`);
@@ -103,6 +105,36 @@ function prefillForm(drill) {
       renderCreatorCourt();
     }, 0);
   }
+}
+
+function makeCustomTagBtn(tag) {
+  const btn = document.createElement('button');
+  btn.className = 'tag-toggle selected';
+  btn.dataset.tag = tag;
+  btn.innerHTML = `${esc(tag)} <span class="tag-remove" onclick="event.stopPropagation();removeCustomTag(this,'${esc(tag)}')">×</span>`;
+  btn.onclick = () => toggleTag(btn, tag);
+  return btn;
+}
+
+export function addCustomTag() {
+  const input = document.getElementById('custom-tag-input');
+  const tag = input.value.trim().toLowerCase();
+  if (!tag) return;
+  input.value = '';
+
+  const existing = document.querySelector(`#tag-picker .tag-toggle[data-tag="${tag}"]`);
+  if (existing) {
+    if (!existing.classList.contains('selected')) existing.click();
+    return;
+  }
+
+  document.getElementById('tag-picker').appendChild(makeCustomTagBtn(tag));
+  state.selectedTags.push(tag);
+}
+
+export function removeCustomTag(el, tag) {
+  el.closest('.tag-toggle').remove();
+  state.selectedTags = state.selectedTags.filter(t => t !== tag);
 }
 
 export function toggleTag(btn, tag) {

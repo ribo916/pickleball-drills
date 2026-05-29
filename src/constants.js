@@ -37,4 +37,6 @@ export const NVZ_BOT_Y = COURT_Y + 5 * CELL_H; // bottom of court row 5 (Team B 
 export const ALL_TAGS = [
   'dinking', 'driving', '3rd shot drop', 'NVZ', 'poaching',
   'reset', 'transition', 'feeding', 'defense', 'consistency',
+  'counter', 'speed up', 'lob', 'overhead', 'serve', 'return',
+  'attacking', 'soft game', 'stacking', 'erne',
 ];

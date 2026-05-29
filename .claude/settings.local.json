@@ -2,7 +2,17 @@
   "permissions": {
     "allow": [
       "Bash(npm install *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(grep -E \"\\\\.\\(js|json\\)$\")",
+      "Bash(node /tmp/test_bugs.js)",
+      "Bash(cat)",
+      "Bash(node /tmp/deep_analysis.js)",
+      "Bash(cat > *)",
+      "Bash(curl -s http://localhost:5173/src/creator.js)",
+      "Bash(pkill -f \"npm run dev\")"
+    ],
+    "additionalDirectories": [
+      "/tmp"
     ]
   }
 }

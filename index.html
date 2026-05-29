@@ -129,6 +129,12 @@
     <div class="form-group">
       <label class="form-label">Tags</label>
       <div class="tag-picker" id="tag-picker"></div>
+      <div class="custom-tag-row">
+        <input class="form-input custom-tag-input" id="custom-tag-input"
+          placeholder="Add custom tag…" maxlength="32"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomTag()}"/>
+        <button class="btn btn-ghost btn-sm" onclick="addCustomTag()">Add</button>
+      </div>
     </div>
 
     <div class="form-group">

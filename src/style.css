@@ -78,6 +78,11 @@ nav { background: var(--surface); border-bottom: 1px solid var(--border); paddin
 .btn-primary:hover { background: var(--accent-hover); }
 .btn-ghost { background: transparent; color: var(--text-dim); border: 1px solid var(--border); }
 .btn-ghost:hover { border-color: var(--text-dim); color: var(--text); }
+.btn-sm { font-size: 11px; padding: 5px 12px; }
+.custom-tag-row { display: flex; gap: 8px; margin-top: 8px; }
+.custom-tag-row .custom-tag-input { flex: 1; font-size: 12px; padding: 5px 10px; }
+.tag-remove { margin-left: 3px; opacity: 0.5; font-size: 13px; line-height: 1; }
+.tag-remove:hover { opacity: 1; }
 .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
 .btn-danger:hover { background: var(--danger); color: #fff; }
 
