@@ -11,7 +11,6 @@ import {
   renderCreatorCourt,
   toggleTag,
   addCustomTag,
-  removeCustomTag,
   addStepField,
   removeStep,
   saveDrill,
@@ -28,7 +27,6 @@ window.updateCreatorCourt = updateCreatorCourt;
 window.renderCreatorCourt = renderCreatorCourt;
 window.toggleTag = toggleTag;
 window.addCustomTag = addCustomTag;
-window.removeCustomTag = removeCustomTag;
 window.addStepField = addStepField;
 window.removeStep = removeStep;
 window.saveDrill = saveDrill;

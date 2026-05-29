@@ -83,7 +83,7 @@ function prefillForm(drill) {
     if (state.selectedTags.includes(btn.dataset.tag)) btn.classList.add('selected');
   });
   const picker = document.getElementById('tag-picker');
-  drill.tags.filter(t => !ALL_TAGS.includes(t)).forEach(t => picker.appendChild(makeCustomTagBtn(t)));
+  (drill.tags || []).filter(t => !ALL_TAGS.includes(t)).forEach(t => picker.appendChild(makeCustomTagBtn(t)));
 
   drill.roles.forEach((r, i) => {
     const l = document.getElementById(`role-label-${i}`);
@@ -111,8 +111,12 @@ function makeCustomTagBtn(tag) {
   const btn = document.createElement('button');
   btn.className = 'tag-toggle selected';
   btn.dataset.tag = tag;
-  btn.innerHTML = `${esc(tag)} <span class="tag-remove" onclick="event.stopPropagation();removeCustomTag(this,'${esc(tag)}')">×</span>`;
-  btn.onclick = () => toggleTag(btn, tag);
+  btn.innerHTML = `${esc(tag)} <span class="tag-remove">×</span>`;
+  btn.querySelector('.tag-remove').addEventListener('click', e => {
+    e.stopPropagation();
+    removeCustomTag(btn, tag);
+  });
+  btn.addEventListener('click', () => toggleTag(btn, tag));
   return btn;
 }
 
@@ -122,7 +126,8 @@ export function addCustomTag() {
   if (!tag) return;
   input.value = '';
 
-  const existing = document.querySelector(`#tag-picker .tag-toggle[data-tag="${tag}"]`);
+  const existing = Array.from(document.querySelectorAll('#tag-picker .tag-toggle'))
+    .find(btn => btn.dataset.tag === tag);
   if (existing) {
     if (!existing.classList.contains('selected')) existing.click();
     return;
@@ -132,8 +137,8 @@ export function addCustomTag() {
   state.selectedTags.push(tag);
 }
 
-export function removeCustomTag(el, tag) {
-  el.closest('.tag-toggle').remove();
+function removeCustomTag(btn, tag) {
+  btn.remove();
   state.selectedTags = state.selectedTags.filter(t => t !== tag);
 }
 

@@ -3,14 +3,14 @@ import { esc } from './utils.js';
 
 export function renderLibrary() {
   const allTags = new Set(['all']);
-  state.drills.forEach(d => d.tags.forEach(t => allTags.add(t)));
+  state.drills.forEach(d => (d.tags || []).forEach(t => allTags.add(t)));
   document.getElementById('filter-bar').innerHTML = [...allTags].map(t => `
-    <button class="filter-chip ${state.activeFilter === t ? 'active' : ''}" onclick="setFilter('${t}')">${t === 'all' ? 'All' : t}</button>
+    <button class="filter-chip ${state.activeFilter === t ? 'active' : ''}" data-tag="${esc(t)}" onclick="setFilter(this.dataset.tag)">${t === 'all' ? 'All' : esc(t)}</button>
   `).join('');
 
   const filtered = state.activeFilter === 'all'
     ? state.drills
-    : state.drills.filter(d => d.tags.includes(state.activeFilter));
+    : state.drills.filter(d => (d.tags || []).includes(state.activeFilter));
 
   const grid = document.getElementById('drill-grid');
   if (!filtered.length) {
@@ -24,7 +24,7 @@ export function renderLibrary() {
         <div class="player-badge">${d.players}P</div>
       </div>
       <div class="drill-desc">${esc(d.desc)}</div>
-      <div class="tag-row">${d.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>
+      <div class="tag-row">${(d.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>
       <div class="step-count">${d.steps.length} steps</div>
     </div>
   `).join('');
