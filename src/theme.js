@@ -11,7 +11,7 @@ function applyTheme(name) {
 }
 
 export function initTheme() {
-  const saved = localStorage.getItem('pickle-theme') || 'warm';
+  const saved = localStorage.getItem('pickle-theme') || 'client';
   applyTheme(saved);
   document.addEventListener('click', e => {
     if (!e.target.closest('.theme-btn-wrap')) {
