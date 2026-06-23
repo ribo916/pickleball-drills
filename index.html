@@ -25,17 +25,17 @@
         </svg>
       </button>
       <div class="theme-picker" id="theme-picker">
-        <button class="theme-option" data-theme="green" onclick="setTheme('green')">
-          <span class="theme-swatch" style="background:#b5e853"></span>Green
+        <button class="theme-option" data-theme="court" onclick="setTheme('court')">
+          <span class="theme-swatch" style="background:#7ecf2b"></span>Court
         </button>
-        <button class="theme-option" data-theme="blue" onclick="setTheme('blue')">
-          <span class="theme-swatch" style="background:#58a6f5"></span>Blue
+        <button class="theme-option" data-theme="night" onclick="setTheme('night')">
+          <span class="theme-swatch" style="background:#22d3ee"></span>Night
         </button>
-        <button class="theme-option" data-theme="slate" onclick="setTheme('slate')">
-          <span class="theme-swatch" style="background:#a78bfa"></span>Slate
+        <button class="theme-option" data-theme="clean" onclick="setTheme('clean')">
+          <span class="theme-swatch" style="background:#e05c00"></span>Clean <span style="opacity:0.5;font-size:10px">(light)</span>
         </button>
-        <button class="theme-option" data-theme="red" onclick="setTheme('red')">
-          <span class="theme-swatch" style="background:#dc2626"></span>Red <span style="opacity:0.5;font-size:10px">(light)</span>
+        <button class="theme-option" data-theme="warm" onclick="setTheme('warm')">
+          <span class="theme-swatch" style="background:#0f766e"></span>Warm <span style="opacity:0.5;font-size:10px">(light)</span>
         </button>
       </div>
     </div>
@@ -72,10 +72,6 @@
     <div class="detail-meta" id="detail-meta"></div>
   </div>
   <div class="detail-goal" id="detail-goal"></div>
-  <div class="notes-section" id="notes-section-wrap">
-    <div class="section-label">Coaching Notes</div>
-    <ul class="notes-list" id="notes-list"></ul>
-  </div>
   <div id="legacy-court-section" class="legacy-court-section"></div>
   <div class="steps-section" id="steps-section-wrap">
     <div class="step-slideshow">
@@ -100,50 +96,39 @@
     <div class="creator-title" id="creator-title">New Drill</div>
   </div>
   <div class="form-body">
-    <div class="form-row-2">
-      <div class="form-group">
-        <label class="form-label">Drill Name</label>
-        <input class="form-input" id="f-name" placeholder="e.g. Drip Practice" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Player Count</label>
-        <select class="form-select" id="f-players">
-          <option value="4">4 players</option>
-          <option value="3">3 players</option>
-          <option value="2">2 players</option>
-          <option value="1">1 player</option>
-        </select>
-      </div>
+    <div class="form-group">
+      <label class="form-label">Drill Name *</label>
+      <input class="form-input" id="f-name" placeholder="e.g. Drip Practice" />
     </div>
     <div class="form-group">
-      <label class="form-label">Short Description</label>
-      <input class="form-input" id="f-desc" placeholder="One-line summary" />
+      <label class="form-label">Description *</label>
+      <textarea class="form-textarea" id="f-desc" style="min-height:100px" placeholder="What is this drill and what should players focus on?"></textarea>
     </div>
     <div class="form-group">
-      <label class="form-label">Goal</label>
-      <textarea class="form-textarea" id="f-goal" placeholder="What should players improve or focus on?"></textarea>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Tags</label>
-      <div class="tag-picker" id="tag-picker"></div>
-      <div class="custom-tag-row">
-        <input class="form-input custom-tag-input" id="custom-tag-input"
-          placeholder="Add custom tag…" maxlength="32"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomTag()}"/>
-        <button class="btn btn-ghost btn-sm" onclick="addCustomTag()">Add</button>
+      <label class="form-label">Players</label>
+      <div class="tag-picker" id="player-count-picker">
+        <button class="tag-toggle" data-count="2" onclick="selectPlayerCount(2)">2 players</button>
+        <button class="tag-toggle" data-count="3" onclick="selectPlayerCount(3)">3 players</button>
+        <button class="tag-toggle selected" data-count="4" onclick="selectPlayerCount(4)">4 players</button>
       </div>
     </div>
-
-    <div class="form-group">
-      <label class="form-label">Coaching Notes <span style="color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0">(one per line)</span></label>
-      <textarea class="form-textarea" id="f-notes" placeholder="Watch for early wrist snap&#10;Reset if rally breaks down"></textarea>
-    </div>
-
     <div class="form-group">
       <label class="form-label">Steps</label>
       <div class="step-builder" id="step-builder"></div>
       <button class="add-step-btn" onclick="addStepField()">+ Add Step</button>
     </div>
+    <details class="form-group">
+      <summary class="form-label" style="cursor:pointer;list-style:none">Tags <span style="color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></summary>
+      <div style="margin-top:8px;display:grid;gap:8px">
+        <div class="tag-picker" id="tag-picker"></div>
+        <div class="custom-tag-row">
+          <input class="form-input custom-tag-input" id="custom-tag-input"
+            placeholder="Add custom tag…" maxlength="32"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomTag()}"/>
+          <button class="btn btn-ghost btn-sm" onclick="addCustomTag()">Add</button>
+        </div>
+      </div>
+    </details>
   </div>
   <div class="creator-actions">
     <button class="btn btn-primary" onclick="saveDrill()">Save Drill</button>
@@ -158,6 +143,9 @@
     <div class="randomizer-title">PICK A DRILL</div>
     <p class="randomizer-sub">Filter by tag, or just roll the dice</p>
   </div>
+  <div class="randomizer-section-label">Players</div>
+  <div class="randomizer-tags" id="randomizer-players"></div>
+  <div class="randomizer-section-label">Focus</div>
   <div class="randomizer-tags" id="randomizer-tags"></div>
   <div class="randomizer-action">
     <button class="btn btn-primary randomizer-roll-btn" onclick="pickRandomDrill()">🎲 Pick a Drill</button>
@@ -171,6 +159,11 @@
 <!-- COURT MODAL -->
 <div id="court-modal" class="court-modal" onclick="closeCourtModal()">
   <div class="court-modal-inner" onclick="event.stopPropagation()">
+    <div class="court-modal-header">
+      <span class="court-modal-title" id="court-modal-label">Set Positions</span>
+      <button class="btn btn-primary btn-sm" onclick="closeCourtModal()">Done</button>
+    </div>
+    <div class="player-selector" id="modal-player-selector"></div>
     <svg id="court-modal-svg" viewBox="0 0 390 540" xmlns="http://www.w3.org/2000/svg"></svg>
   </div>
 </div>

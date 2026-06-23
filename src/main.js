@@ -7,9 +7,11 @@ import { openDrill, stepNav } from './detail.js';
 import { showRandomizer, pickRandomDrill, openPickedDrill } from './randomizer.js';
 import {
   showCreator,
-  renderStepCourt,
   openCourtModal,
   closeCourtModal,
+  setPlayerPosition,
+  selectActivePlayer,
+  selectPlayerCount,
   toggleTag,
   addCustomTag,
   addStepField,
@@ -24,10 +26,12 @@ window.showView = showView;
 window.showCreator = showCreator;
 window.openDrill = openDrill;
 window.setFilter = setFilter;
-window.renderStepCourt = renderStepCourt;
 window.openCourtModal = openCourtModal;
 window.closeCourtModal = closeCourtModal;
+window.setPlayerPosition = setPlayerPosition;
+window.selectActivePlayer = selectActivePlayer;
 window.stepNav = stepNav;
+window.selectPlayerCount = selectPlayerCount;
 window.toggleTag = toggleTag;
 window.addCustomTag = addCustomTag;
 window.addStepField = addStepField;

@@ -35,10 +35,7 @@ function renderCurrentStep() {
     <div class="step-card">
       ${courtHtml}
       <div class="step-card-body">
-        <div>
-          <div class="step-title">${esc(s.title)}</div>
-          <div class="step-desc">${esc(s.desc)}</div>
-        </div>
+        ${s.desc ? `<div class="step-desc">${esc(s.desc)}</div>` : ''}
       </div>
     </div>
   `;
@@ -85,15 +82,6 @@ export function openDrill(id) {
     stepsWrap.style.display = '';
   } else {
     stepsWrap.style.display = 'none';
-  }
-
-  // Notes
-  const notesList = document.getElementById('notes-list');
-  if (drill.notes && drill.notes.length) {
-    notesList.innerHTML = drill.notes.map(n => `<li>${esc(n)}</li>`).join('');
-    document.getElementById('notes-section-wrap').style.display = '';
-  } else {
-    document.getElementById('notes-section-wrap').style.display = 'none';
   }
 
   showView('detail');

@@ -5,13 +5,35 @@ import { showView } from './navigation.js';
 
 const rState = {
   selectedTags: new Set(),
+  selectedPlayerCount: null,
   pickedDrill: null,
 };
 
 export function showRandomizer() {
   rState.selectedTags.clear();
+  rState.selectedPlayerCount = null;
   rState.pickedDrill = null;
 
+  // Player count filter
+  const playersContainer = document.getElementById('randomizer-players');
+  playersContainer.innerHTML = [2, 3, 4].map(n =>
+    `<button class="tag-toggle" data-count="${n}">${n} players</button>`
+  ).join('');
+  playersContainer.onclick = e => {
+    const btn = e.target.closest('[data-count]');
+    if (!btn) return;
+    const count = parseInt(btn.dataset.count);
+    if (rState.selectedPlayerCount === count) {
+      rState.selectedPlayerCount = null;
+      btn.classList.remove('selected');
+    } else {
+      rState.selectedPlayerCount = count;
+      playersContainer.querySelectorAll('[data-count]').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    }
+  };
+
+  // Tag filter
   const drillTags = new Set(state.drills.flatMap(d => d.tags));
   const allTags = [...new Set([...ALL_TAGS, ...drillTags])];
 
@@ -41,9 +63,13 @@ export function showRandomizer() {
 }
 
 export function pickRandomDrill() {
-  const pool = rState.selectedTags.size === 0
-    ? state.drills
-    : state.drills.filter(d => d.tags.some(t => rState.selectedTags.has(t)));
+  let pool = state.drills;
+  if (rState.selectedPlayerCount !== null) {
+    pool = pool.filter(d => d.players === rState.selectedPlayerCount);
+  }
+  if (rState.selectedTags.size > 0) {
+    pool = pool.filter(d => d.tags.some(t => rState.selectedTags.has(t)));
+  }
 
   const result = document.getElementById('randomizer-result');
 

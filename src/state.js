@@ -5,4 +5,7 @@ export const state = {
   activeFilter: 'all',
   selectedTags: [],
   stepCount: 0,
+  activePlayer: 'P1',
+  stepPositions: {},
+  modalStepIdx: null,
 };
