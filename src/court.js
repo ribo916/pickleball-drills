@@ -80,8 +80,8 @@ export function buildCourtSVG(positions) {
     const pos = gridToXY(coord);
     if (!pos) return;
     const color = PLAYER_COLORS[i];
-    s += `<circle cx="${pos.x}" cy="${pos.y}" r="13" fill="${color}25" stroke="${color}" stroke-width="2"/>`;
-    s += `<text x="${pos.x}" y="${pos.y}" text-anchor="middle" dominant-baseline="middle" fill="${color}" font-size="10" font-family="DM Mono, monospace" font-weight="500">${label}</text>`;
+    s += `<circle cx="${pos.x}" cy="${pos.y}" r="13" fill="${color}" stroke="${color}" stroke-width="1.5"/>`;
+    s += `<text x="${pos.x}" y="${pos.y}" text-anchor="middle" dominant-baseline="middle" fill="rgba(0,0,0,0.75)" font-size="10" font-family="DM Mono, monospace" font-weight="700">${label}</text>`;
   });
 
   return s;
@@ -160,8 +160,8 @@ export function buildInteractiveCourtSVG(positions, stepIdx) {
     const pos = gridToXY(coord);
     if (!pos) return;
     const color = PLAYER_COLORS[i];
-    s += `<circle cx="${pos.x}" cy="${pos.y}" r="13" fill="${color}40" stroke="${color}" stroke-width="2.5" style="pointer-events:none"/>`;
-    s += `<text x="${pos.x}" y="${pos.y}" text-anchor="middle" dominant-baseline="middle" fill="${color}" font-size="10" font-family="DM Mono, monospace" font-weight="700" style="pointer-events:none">${label}</text>`;
+    s += `<circle cx="${pos.x}" cy="${pos.y}" r="13" fill="${color}" stroke="${color}" stroke-width="1.5" style="pointer-events:none"/>`;
+    s += `<text x="${pos.x}" y="${pos.y}" text-anchor="middle" dominant-baseline="middle" fill="rgba(0,0,0,0.75)" font-size="10" font-family="DM Mono, monospace" font-weight="700" style="pointer-events:none">${label}</text>`;
   });
 
   return s;

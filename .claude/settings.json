@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(run)",
+      "Skill(run:*)",
+      "Bash(echo \"PID=$!\")",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(chromium-cli screenshot *)",
+      "Bash(which chromium *)",
+      "Read(//usr/local/bin/**)",
+      "Bash(npx playwright *)",
+      "Bash(npm init *)"
+    ]
+  }
+}
