@@ -44,6 +44,15 @@ export function openCourtModal(idx) {
 
 export function closeCourtModal() {
   document.getElementById('court-modal').classList.remove('open');
+  if (state.modalStepIdx !== null) updateStepPositionBtn(state.modalStepIdx);
+}
+
+function updateStepPositionBtn(idx) {
+  const btn = document.querySelector(`#step-${idx} .set-positions-btn`);
+  if (!btn) return;
+  const hasPositions = Object.keys(state.stepPositions[idx] || {}).length > 0;
+  btn.classList.toggle('has-positions', hasPositions);
+  btn.textContent = hasPositions ? '✓ Edit Positions' : '⊕ Set Positions';
 }
 
 function renderModalCourt() {
@@ -173,7 +182,7 @@ export function addStepField(notes = '', positions = {}) {
   state.stepPositions[idx] = { ...positions };
 
   const div = document.createElement('div');
-  div.className = 'step-item-builder';
+  div.className = 'step-item-builder step-new';
   div.id = `step-${idx}`;
   div.innerHTML = `
     <div class="step-item-header">
@@ -181,9 +190,12 @@ export function addStepField(notes = '', positions = {}) {
       <button class="step-remove" onclick="removeStep(${idx})">×</button>
     </div>
     <button class="set-positions-btn" onclick="openCourtModal(${idx})">⊕ Set Positions</button>
-    <textarea class="form-textarea" id="step-notes-${idx}" placeholder="Notes (optional)" style="min-height:56px;font-size:13px;margin-top:8px">${esc(notes)}</textarea>
+    <textarea class="form-textarea" id="step-notes-${idx}" placeholder="Notes (optional)" style="min-height:56px;margin-top:8px">${esc(notes)}</textarea>
   `;
   document.getElementById('step-builder').appendChild(div);
+  updateStepPositionBtn(idx);
+  div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  div.addEventListener('animationend', () => div.classList.remove('step-new'), { once: true });
 }
 
 export function removeStep(idx) {
@@ -196,7 +208,6 @@ export async function saveDrill() {
   const name = document.getElementById('f-name').value.trim();
   if (!name) { showToast('Drill needs a name'); return; }
   const desc = document.getElementById('f-desc').value.trim();
-  if (!desc) { showToast('Add a description'); return; }
 
   const steps = [];
   document.querySelectorAll('.step-item-builder').forEach((el, i) => {

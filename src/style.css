@@ -46,8 +46,8 @@ html[data-theme="clean"] {
   --accent2: #0077cc;
   --text: #111111;
   --text-dim: #4a4a4a;
-  --text-muted: #888888;
-  --border: #b8b8c0;
+  --text-muted: #5e5e5e;
+  --border: #8e8e9a;
   --tag-bg: #e0e0e4;
   --danger: #cc2222;
   --shadow: 0 1px 6px rgba(0,0,0,0.10);
@@ -63,8 +63,8 @@ html[data-theme="warm"] {
   --accent2: #b45309;
   --text: #1c1410;
   --text-dim: #5c4a35;
-  --text-muted: #9e8a72;
-  --border: #c4b5a0;
+  --text-muted: #6b5443;
+  --border: #9e8e7a;
   --tag-bg: #e4d9c8;
   --danger: #dc2626;
   --shadow: 0 1px 6px rgba(0,0,0,0.10);
@@ -162,7 +162,7 @@ nav { background: var(--surface); border-bottom: 1px solid var(--border); paddin
 .form-body { padding: 16px; display: grid; gap: 16px; }
 .form-group { display: grid; gap: 6px; }
 .form-label { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); }
-.form-input, .form-textarea, .form-select { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: var(--font-body); font-size: 14px; padding: 10px 12px; width: 100%; transition: border-color 0.15s; outline: none; }
+.form-input, .form-textarea, .form-select { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: var(--font-body); font-size: 16px; padding: 10px 12px; width: 100%; transition: border-color 0.15s; outline: none; }
 .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--accent); }
 .form-textarea { min-height: 80px; resize: vertical; }
 .form-select option { background: var(--surface2); }
@@ -180,12 +180,19 @@ nav { background: var(--surface); border-bottom: 1px solid var(--border); paddin
 /* STEP BUILDER */
 .step-builder { display: grid; gap: 10px; }
 .step-item-builder { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; }
+@keyframes stepHighlight {
+  0%   { box-shadow: 0 0 0 3px var(--accent); }
+  100% { box-shadow: none; }
+}
+.step-item-builder.step-new { animation: stepHighlight 1.4s ease-out forwards; }
 .step-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .step-item-label { font-family: var(--font-mono); font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; }
 .step-remove { font-size: 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; line-height: 1; padding: 0 4px; }
 .step-remove:hover { color: var(--danger); }
 .set-positions-btn { width: 100%; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; padding: 8px; margin-bottom: 6px; border: 1.5px dashed var(--border); border-radius: var(--radius); background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
 .set-positions-btn:hover { border-color: var(--accent); color: var(--accent); }
+.set-positions-btn.has-positions { border-style: solid; border-color: var(--accent); color: var(--accent); }
+.set-positions-btn.has-positions:hover { background: var(--accent); color: var(--accent-text); }
 .add-step-btn { font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; padding: 10px; border: 1px dashed var(--border); border-radius: var(--radius); background: transparent; color: var(--text-muted); cursor: pointer; width: 100%; transition: all 0.15s; }
 .add-step-btn:hover { border-color: var(--accent); color: var(--accent); }
 
