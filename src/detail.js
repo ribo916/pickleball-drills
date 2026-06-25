@@ -1,6 +1,6 @@
 import { state } from './state.js';
 import { buildCourtSVG } from './court.js';
-import { esc } from './utils.js';
+import { esc, parseVideoUrl } from './utils.js';
 import { showView } from './navigation.js';
 
 let currentStepIdx = 0;
@@ -82,6 +82,28 @@ export function openDrill(id) {
     stepsWrap.style.display = '';
   } else {
     stepsWrap.style.display = 'none';
+  }
+
+  // Video embed
+  const videoSection = document.getElementById('detail-video-section');
+  const embedUrl = drill.videoUrl ? (parseVideoUrl(drill.videoUrl) || drill.videoUrl) : null;
+  if (embedUrl) {
+    videoSection.innerHTML = `
+      <div class="video-embed-wrap">
+        <iframe
+          src="${esc(embedUrl)}"
+          title="Drill video"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          loading="lazy"
+        ></iframe>
+      </div>
+    `;
+    videoSection.style.display = '';
+  } else {
+    videoSection.innerHTML = '';
+    videoSection.style.display = 'none';
   }
 
   showView('detail');

@@ -57,8 +57,13 @@
 <!-- LIBRARY -->
 <div id="view-library" class="view active">
   <div class="library-header">
-    <h1>Drill Library</h1>
-    <p>Pickleball drills for weekend sessions</p>
+    <div class="library-header-top">
+      <div>
+        <h1>Drill Library</h1>
+        <p>Pickleball drills for weekend sessions</p>
+      </div>
+      <button class="btn btn-ghost btn-sm quick-add-btn" onclick="openQuickAdd()">+ Quick Add</button>
+    </div>
   </div>
   <div class="filter-bar" id="filter-bar"></div>
   <div class="drill-grid" id="drill-grid"></div>
@@ -73,6 +78,7 @@
   </div>
   <div class="detail-goal" id="detail-goal"></div>
   <div id="legacy-court-section" class="legacy-court-section"></div>
+  <div id="detail-video-section" style="display:none"></div>
   <div class="steps-section" id="steps-section-wrap">
     <div class="step-slideshow">
       <div class="step-slide-header">
@@ -103,6 +109,10 @@
     <div class="form-group">
       <label class="form-label">Description <span style="color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
       <textarea class="form-textarea" id="f-desc" style="min-height:100px" placeholder="What is this drill and what should players focus on?"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Video URL <span style="color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0">(YouTube or Vimeo, optional)</span></label>
+      <input class="form-input" id="f-video" placeholder="https://youtu.be/… or https://vimeo.com/…" type="url" inputmode="url" autocomplete="off" />
     </div>
     <div class="form-group">
       <label class="form-label">Players</label>
@@ -165,6 +175,30 @@
     </div>
     <div class="player-selector" id="modal-player-selector"></div>
     <svg id="court-modal-svg" viewBox="0 0 390 540" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+</div>
+
+<!-- QUICK-ADD MODAL -->
+<div id="modal-quick-add" class="quick-add-backdrop" onclick="closeQuickAdd()" style="display:none">
+  <div class="quick-add-modal" onclick="event.stopPropagation()">
+    <div class="quick-add-header">
+      <span class="quick-add-title">Quick Add Drill</span>
+      <button class="btn btn-ghost btn-sm" onclick="closeQuickAdd()">✕</button>
+    </div>
+    <div class="quick-add-body">
+      <div class="form-group">
+        <label class="form-label">Drill Name *</label>
+        <input class="form-input" id="qa-name" placeholder="e.g. Lob recovery" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description <span style="color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <textarea class="form-textarea" id="qa-desc" style="min-height:72px" placeholder="What is this drill?"></textarea>
+      </div>
+    </div>
+    <div class="quick-add-footer">
+      <button class="btn btn-primary" onclick="saveQuickAdd()">Save</button>
+      <button class="btn btn-ghost" onclick="closeQuickAdd()">Cancel</button>
+    </div>
   </div>
 </div>
 

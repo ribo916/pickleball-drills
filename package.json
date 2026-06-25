@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "concurrently \"vite\" \"node server.dev.js\"",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4"
@@ -14,6 +16,9 @@
     "concurrently": "^9.1.2",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "vite": "^5.4.21"
+    "jsdom": "^29.1.1",
+    "playwright": "^1.61.1",
+    "vite": "^5.4.21",
+    "vitest": "^4.1.9"
   }
 }

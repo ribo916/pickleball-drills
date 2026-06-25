@@ -9,7 +9,12 @@
       "Bash(which chromium *)",
       "Read(//usr/local/bin/**)",
       "Bash(npx playwright *)",
-      "Bash(npm init *)"
+      "Bash(npm init *)",
+      "Bash(npm ls *)",
+      "Read(//Users/ribo/**)",
+      "Bash(npm root *)",
+      "Bash(pkill -f \"vite\")",
+      "Bash(pkill -f \"server.dev.js\")"
     ]
   }
 }

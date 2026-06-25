@@ -1,7 +1,7 @@
 import { state } from './state.js';
 import { PLAYER_COLORS, PLAYER_LABELS, ALL_TAGS } from './constants.js';
 import { gridToXY, buildInteractiveCourtSVG } from './court.js';
-import { esc, showToast } from './utils.js';
+import { esc, showToast, parseVideoUrl } from './utils.js';
 import { saveDrills } from './storage.js';
 import { showView } from './navigation.js';
 
@@ -26,6 +26,7 @@ export function showCreator(id) {
   } else {
     document.getElementById('f-name').value = '';
     document.getElementById('f-desc').value = '';
+    document.getElementById('f-video').value = '';
     selectPlayerCount(4);
     addStepField();
   }
@@ -109,6 +110,7 @@ function prefillForm(drill) {
   const descVal = (drill.goal && drill.goal.length > (drill.desc || '').length)
     ? drill.goal : (drill.desc || '');
   document.getElementById('f-desc').value = descVal;
+  document.getElementById('f-video').value = drill.videoUrl || '';
   selectPlayerCount(drill.players || 4);
 
   state.selectedTags = [...(drill.tags || [])];
@@ -208,6 +210,8 @@ export async function saveDrill() {
   const name = document.getElementById('f-name').value.trim();
   if (!name) { showToast('Drill needs a name'); return; }
   const desc = document.getElementById('f-desc').value.trim();
+  const rawVideo = document.getElementById('f-video').value.trim();
+  const videoUrl = parseVideoUrl(rawVideo) || (rawVideo || undefined);
 
   const steps = [];
   document.querySelectorAll('.step-item-builder').forEach((el, i) => {
@@ -233,6 +237,7 @@ export async function saveDrill() {
     goal: desc,
     tags: state.selectedTags,
     steps,
+    ...(videoUrl !== undefined && { videoUrl }),
   };
 
   if (state.editingId) {
