@@ -9,4 +9,6 @@ export const state = {
   activePlayer: 'P1',
   stepPositions: {},
   modalStepIdx: null,
+  favoritesFilter: false,
+  librarySort: 'name',
 };

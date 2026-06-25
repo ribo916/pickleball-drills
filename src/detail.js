@@ -1,7 +1,11 @@
 import { state } from './state.js';
 import { buildCourtSVG } from './court.js';
-import { esc, parseVideoUrl } from './utils.js';
+import { esc, showToast, parseVideoUrl } from './utils.js';
+import { saveDrills } from './storage.js';
 import { showView } from './navigation.js';
+import { showCreator } from './creator.js';
+import { isFavorite } from './favorites.js';
+import { isInSession } from './session.js';
 
 let currentStepIdx = 0;
 let currentSteps = [];
@@ -35,6 +39,7 @@ function renderCurrentStep() {
     <div class="step-card">
       ${courtHtml}
       <div class="step-card-body">
+        ${s.title ? `<div class="step-title">${esc(s.title)}</div>` : ''}
         ${s.desc ? `<div class="step-desc">${esc(s.desc)}</div>` : ''}
       </div>
     </div>
@@ -49,7 +54,19 @@ export function openDrill(id) {
   document.getElementById('detail-name').textContent = drill.name;
   document.getElementById('detail-meta').innerHTML = `
     <span class="player-badge">${drill.players} players</span>
-    ${drill.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}
+    ${(drill.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('')}
+  `;
+
+  document.querySelector('.detail-actions').innerHTML = `
+    <div class="detail-actions-primary">
+      <button class="btn btn-ghost fav-btn${isFavorite(id) ? ' fav-btn--on' : ''}" data-favorite-id="${id}" onclick="toggleFavorite('${id}')">★ Favorite</button>
+      <button class="btn btn-ghost session-add-btn${isInSession(id) ? ' session-add-btn--in' : ''}" id="detail-session-btn" data-session-id="${id}" onclick="addToSession('${id}')">${isInSession(id) ? '✓ In Session' : '＋ Queue'}</button>
+    </div>
+    <div class="detail-actions-secondary">
+      <button class="btn btn-ghost btn-sm" onclick="editCurrentDrill()">Edit</button>
+      <button class="btn btn-ghost btn-sm" onclick="duplicateCurrentDrill()">Duplicate</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteCurrentDrill()">Delete</button>
+    </div>
   `;
   document.getElementById('detail-goal').innerHTML = `
     <div class="label">Drill Goal</div><p>${esc(drill.goal)}</p>
@@ -107,4 +124,16 @@ export function openDrill(id) {
   }
 
   showView('detail');
+}
+
+export async function duplicateCurrentDrill() {
+  const drill = state.drills.find(d => d.id === state.currentDrillId);
+  if (!drill) return;
+  const copy = JSON.parse(JSON.stringify(drill));
+  copy.id = `drill-${Date.now()}`;
+  copy.name = `Copy of ${drill.name}`;
+  state.drills.push(copy);
+  await saveDrills();
+  showToast('Drill duplicated');
+  setTimeout(() => showCreator(copy.id), 400);
 }

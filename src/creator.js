@@ -124,7 +124,7 @@ function prefillForm(drill) {
   state.stepCount = 0;
   (drill.steps || []).forEach((s, i) => {
     const positions = s.positions || (i === 0 && drill.startPositions ? drill.startPositions : {});
-    addStepField(s.desc || '', positions);
+    addStepField(s.desc || '', positions, s.title || '');
   });
 }
 
@@ -179,7 +179,7 @@ export function toggleTag(btn, tag) {
   }
 }
 
-export function addStepField(notes = '', positions = {}) {
+export function addStepField(notes = '', positions = {}, title = '') {
   const idx = state.stepCount++;
   state.stepPositions[idx] = { ...positions };
 
@@ -191,6 +191,7 @@ export function addStepField(notes = '', positions = {}) {
       <div class="step-item-label">Step ${idx + 1}</div>
       <button class="step-remove" onclick="removeStep(${idx})">×</button>
     </div>
+    <input class="form-input step-title-input" id="step-title-${idx}" placeholder="Step title (optional)" value="${esc(title)}" style="margin-bottom:6px;font-size:14px" />
     <button class="set-positions-btn" onclick="openCourtModal(${idx})">⊕ Set Positions</button>
     <textarea class="form-textarea" id="step-notes-${idx}" placeholder="Notes (optional)" style="min-height:56px;margin-top:8px">${esc(notes)}</textarea>
   `;
@@ -216,13 +217,14 @@ export async function saveDrill() {
   const steps = [];
   document.querySelectorAll('.step-item-builder').forEach((el, i) => {
     const id = el.id.replace('step-', '');
+    const title = document.getElementById(`step-title-${id}`)?.value.trim() || '';
     const notes = document.getElementById(`step-notes-${id}`)?.value.trim() || '';
     const positions = {};
     Object.entries(state.stepPositions[id] || {}).forEach(([label, coord]) => {
       if (gridToXY(coord)) positions[label] = coord;
     });
-    if (notes || Object.keys(positions).length > 0) {
-      steps.push({ desc: notes, positions });
+    if (title || notes || Object.keys(positions).length > 0) {
+      steps.push({ title, desc: notes, positions });
     }
   });
 

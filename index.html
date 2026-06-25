@@ -39,6 +39,13 @@
         </button>
       </div>
     </div>
+    <button class="btn btn-ghost btn-icon session-nav-btn" onclick="showSession()" title="Session Queue">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+        <circle cx="3" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="3" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="3" cy="18" r="1" fill="currentColor" stroke="none"/>
+      </svg>
+      <span class="session-badge" id="session-badge"></span>
+    </button>
     <button class="btn btn-ghost btn-icon" onclick="showRandomizer()" title="Random Drill">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="2" y="2" width="20" height="20" rx="4"/>
@@ -67,6 +74,13 @@
     <div class="library-search-row">
       <input class="library-search-input" id="library-search" type="search" placeholder="Search drills…" oninput="setLibrarySearch(this.value)" autocomplete="off" />
     </div>
+    <div class="library-sort-row">
+      <select class="form-select library-sort-select" id="library-sort" onchange="setLibrarySort(this.value)">
+        <option value="name">Name A–Z</option>
+        <option value="newest">Newest First</option>
+        <option value="players">Player Count</option>
+      </select>
+    </div>
   </div>
   <div class="filter-bar" id="filter-bar"></div>
   <div class="drill-grid" id="drill-grid"></div>
@@ -92,10 +106,7 @@
       <div id="step-slide"></div>
     </div>
   </div>
-  <div class="detail-actions">
-    <button class="btn btn-ghost" onclick="editCurrentDrill()">Edit drill</button>
-    <button class="btn btn-danger" onclick="deleteCurrentDrill()">Delete</button>
-  </div>
+  <div class="detail-actions"></div>
 </div>
 
 <!-- CREATOR -->
@@ -165,6 +176,18 @@
   </div>
   <div class="randomizer-result" id="randomizer-result"></div>
   <canvas id="randomizer-canvas"></canvas>
+</div>
+
+<!-- SESSION -->
+<div id="view-session" class="view">
+  <div class="session-header">
+    <button class="back-btn" onclick="showView('library')">← Back</button>
+    <div class="session-title">SESSION QUEUE</div>
+  </div>
+  <div id="session-list" class="session-list"></div>
+  <div class="session-footer">
+    <button class="btn btn-danger" onclick="clearSession()">End Session</button>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>

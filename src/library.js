@@ -1,6 +1,17 @@
 import { state } from './state.js';
 import { esc, showToast } from './utils.js';
 import { saveDrills } from './storage.js';
+import { isFavorite } from './favorites.js';
+import { isInSession } from './session.js';
+
+const savedSort = localStorage.getItem('pickle-sort');
+if (savedSort) state.librarySort = savedSort;
+
+export function setLibrarySort(val) {
+  state.librarySort = val;
+  localStorage.setItem('pickle-sort', val);
+  renderLibrary();
+}
 
 export function renderLibrary() {
   const allTags = new Set();
@@ -8,10 +19,11 @@ export function renderLibrary() {
 
   const noTagsSelected = state.selectedLibraryTags.size === 0;
   document.getElementById('filter-bar').innerHTML = [
-    `<button class="filter-chip ${noTagsSelected ? 'active' : ''}" onclick="clearLibraryTags()">All</button>`,
+    `<button class="filter-chip ${noTagsSelected && !state.favoritesFilter ? 'active' : ''}" onclick="clearLibraryTags()">All</button>`,
     ...[...allTags].map(t => `
       <button class="filter-chip ${state.selectedLibraryTags.has(t) ? 'active' : ''}" data-tag="${esc(t)}" onclick="toggleLibraryTag(this.dataset.tag)">${esc(t)}</button>
     `),
+    `<button class="filter-chip fav-filter-chip ${state.favoritesFilter ? 'active' : ''}" onclick="toggleFavoritesFilter()">★ Favorites</button>`,
   ].join('');
 
   const query = state.librarySearch.trim().toLowerCase();
@@ -27,12 +39,24 @@ export function renderLibrary() {
     );
   }
 
+  if (state.favoritesFilter) {
+    filtered = filtered.filter(d => isFavorite(d.id));
+  }
+
+  const sorted = [...filtered];
+  if (state.librarySort === 'name') sorted.sort((a, b) => a.name.localeCompare(b.name));
+  else if (state.librarySort === 'newest') sorted.sort((a, b) => (parseInt(b.id.replace('drill-', '')) || 0) - (parseInt(a.id.replace('drill-', '')) || 0));
+  else if (state.librarySort === 'players') sorted.sort((a, b) => a.players - b.players);
+
+  const sortEl = document.getElementById('library-sort');
+  if (sortEl) sortEl.value = state.librarySort;
+
   const grid = document.getElementById('drill-grid');
-  if (!filtered.length) {
+  if (!sorted.length) {
     grid.innerHTML = `<div class="empty-state"><h2>No drills found</h2><p>${query || state.selectedLibraryTags.size ? 'Try different filters or search terms.' : 'Add your first drill with the + New button.'}</p></div>`;
     return;
   }
-  grid.innerHTML = filtered.map(d => `
+  grid.innerHTML = sorted.map(d => `
     <div class="drill-card${d.steps.length === 0 ? ' drill-card--empty' : ''}" onclick="openDrill('${d.id}')">
       <div class="card-top">
         <div class="drill-name">${esc(d.name)}</div>
@@ -40,10 +64,16 @@ export function renderLibrary() {
       </div>
       <div class="drill-desc">${esc(d.desc)}</div>
       <div class="tag-row">${(d.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>
-      <div class="step-count">
-        ${d.steps.length === 0
-          ? `<span class="no-steps-badge">no steps</span>`
-          : `${d.steps.length} step${d.steps.length === 1 ? '' : 's'}`}
+      <div class="card-bottom">
+        <div class="step-count">
+          ${d.steps.length === 0
+            ? `<span class="no-steps-badge">no steps</span>`
+            : `${d.steps.length} step${d.steps.length === 1 ? '' : 's'}`}
+        </div>
+        <div class="card-bottom-actions">
+          <button class="fav-btn${isFavorite(d.id) ? ' fav-btn--on' : ''}" data-favorite-id="${d.id}" onclick="event.stopPropagation();toggleFavorite('${d.id}')">★</button>
+          <button class="session-add-btn${isInSession(d.id) ? ' session-add-btn--in' : ''}" data-session-id="${d.id}" onclick="event.stopPropagation();addToSession('${d.id}')">${isInSession(d.id) ? '✓ Queued' : '＋ Queue'}</button>
+        </div>
       </div>
     </div>
   `).join('');
@@ -60,6 +90,13 @@ export function toggleLibraryTag(tag) {
 
 export function clearLibraryTags() {
   state.selectedLibraryTags.clear();
+  state.favoritesFilter = false;
+  renderLibrary();
+}
+
+export function toggleFavoritesFilter() {
+  state.favoritesFilter = !state.favoritesFilter;
+  if (state.favoritesFilter) state.selectedLibraryTags.clear();
   renderLibrary();
 }
 
