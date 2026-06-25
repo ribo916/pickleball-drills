@@ -23,8 +23,10 @@ export function renderLibrary() {
     ...[...allTags].map(t => `
       <button class="filter-chip ${state.selectedLibraryTags.has(t) ? 'active' : ''}" data-tag="${esc(t)}" onclick="toggleLibraryTag(this.dataset.tag)">${esc(t)}</button>
     `),
-    `<button class="filter-chip fav-filter-chip ${state.favoritesFilter ? 'active' : ''}" onclick="toggleFavoritesFilter()">★ Favorites</button>`,
   ].join('');
+
+  const favBtn = document.getElementById('fav-filter-btn');
+  if (favBtn) favBtn.classList.toggle('active', state.favoritesFilter);
 
   const query = state.librarySearch.trim().toLowerCase();
 
@@ -70,10 +72,7 @@ export function renderLibrary() {
             ? `<span class="no-steps-badge">no steps</span>`
             : `${d.steps.length} step${d.steps.length === 1 ? '' : 's'}`}
         </div>
-        <div class="card-bottom-actions">
-          <button class="fav-btn${isFavorite(d.id) ? ' fav-btn--on' : ''}" data-favorite-id="${d.id}" onclick="event.stopPropagation();toggleFavorite('${d.id}')">★</button>
-          <button class="session-add-btn${isInSession(d.id) ? ' session-add-btn--in' : ''}" data-session-id="${d.id}" onclick="event.stopPropagation();addToSession('${d.id}')">${isInSession(d.id) ? '✓ Queued' : '＋ Queue'}</button>
-        </div>
+        <button class="session-add-btn${isInSession(d.id) ? ' session-add-btn--in' : ''}" data-session-id="${d.id}" onclick="event.stopPropagation();addToSession('${d.id}')">${isInSession(d.id) ? '✓ Queued' : '＋ Queue'}</button>
       </div>
     </div>
   `).join('');

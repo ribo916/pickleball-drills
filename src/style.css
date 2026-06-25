@@ -355,8 +355,10 @@ nav { background: var(--surface); border-bottom: 1px solid var(--border); paddin
 .library-search-input::placeholder { color: var(--text-muted); }
 .library-search-input:focus { border-color: var(--accent); }
 
-.library-sort-row { margin-top: 8px; }
+.library-sort-row { margin-top: 8px; display: flex; align-items: center; gap: 8px; }
 .library-sort-select { font-size: 13px; padding: 6px 10px; width: auto; }
+.fav-filter-btn { font-family: var(--font-mono); font-size: 11px; padding: 6px 12px; border-radius: var(--radius); border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+.fav-filter-btn:hover, .fav-filter-btn.active { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
 
 /* NO-STEPS BADGE */
 .no-steps-badge {
@@ -379,7 +381,6 @@ nav { background: var(--surface); border-bottom: 1px solid var(--border); paddin
 .fav-btn { background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer; padding: 0 2px; line-height: 1; transition: color 0.15s, transform 0.15s; }
 .fav-btn:hover { color: var(--accent); transform: scale(1.2); }
 .fav-btn--on { color: var(--accent); }
-.fav-filter-chip { margin-left: auto; }
 
 /* SESSION NAV BADGE */
 .session-nav-btn { position: relative; }
@@ -412,6 +413,5 @@ nav { background: var(--surface); border-bottom: 1px solid var(--border); paddin
 
 /* SESSION ADD BUTTONS (card + detail) */
 .card-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
-.card-bottom-actions { display: flex; align-items: center; gap: 6px; }
 .session-add-btn { font-family: var(--font-mono); font-size: 10px; padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
 .session-add-btn:hover, .session-add-btn--in { border-color: var(--accent2); color: var(--accent2); }
