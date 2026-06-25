@@ -14,7 +14,10 @@
       "Read(//Users/ribo/**)",
       "Bash(npm root *)",
       "Bash(pkill -f \"vite\")",
-      "Bash(pkill -f \"server.dev.js\")"
+      "Bash(pkill -f \"server.dev.js\")",
+      "Bash(node /private/tmp/claude-501/-Users-ribo-Dev-pickleball-drills/48399ccb-e98c-45b0-a748-4aa27510d230/scratchpad/test-features.js)",
+      "Bash(npm list *)",
+      "Bash(node /Users/ribo/Dev/pickleball-drills/test-features.tmp.js)"
     ]
   }
 }

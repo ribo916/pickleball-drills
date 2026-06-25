@@ -3,19 +3,33 @@ import { esc, showToast } from './utils.js';
 import { saveDrills } from './storage.js';
 
 export function renderLibrary() {
-  const allTags = new Set(['all']);
+  const allTags = new Set();
   state.drills.forEach(d => (d.tags || []).forEach(t => allTags.add(t)));
-  document.getElementById('filter-bar').innerHTML = [...allTags].map(t => `
-    <button class="filter-chip ${state.activeFilter === t ? 'active' : ''}" data-tag="${esc(t)}" onclick="setFilter(this.dataset.tag)">${t === 'all' ? 'All' : esc(t)}</button>
-  `).join('');
 
-  const filtered = state.activeFilter === 'all'
+  const noTagsSelected = state.selectedLibraryTags.size === 0;
+  document.getElementById('filter-bar').innerHTML = [
+    `<button class="filter-chip ${noTagsSelected ? 'active' : ''}" onclick="clearLibraryTags()">All</button>`,
+    ...[...allTags].map(t => `
+      <button class="filter-chip ${state.selectedLibraryTags.has(t) ? 'active' : ''}" data-tag="${esc(t)}" onclick="toggleLibraryTag(this.dataset.tag)">${esc(t)}</button>
+    `),
+  ].join('');
+
+  const query = state.librarySearch.trim().toLowerCase();
+
+  let filtered = noTagsSelected
     ? state.drills
-    : state.drills.filter(d => (d.tags || []).includes(state.activeFilter));
+    : state.drills.filter(d => (d.tags || []).some(t => state.selectedLibraryTags.has(t)));
+
+  if (query) {
+    filtered = filtered.filter(d =>
+      d.name.toLowerCase().includes(query) ||
+      (d.desc || '').toLowerCase().includes(query)
+    );
+  }
 
   const grid = document.getElementById('drill-grid');
   if (!filtered.length) {
-    grid.innerHTML = `<div class="empty-state"><h2>No drills yet</h2><p>Add your first drill with the + New button</p></div>`;
+    grid.innerHTML = `<div class="empty-state"><h2>No drills found</h2><p>${query || state.selectedLibraryTags.size ? 'Try different filters or search terms.' : 'Add your first drill with the + New button.'}</p></div>`;
     return;
   }
   grid.innerHTML = filtered.map(d => `
@@ -35,8 +49,22 @@ export function renderLibrary() {
   `).join('');
 }
 
-export function setFilter(tag) {
-  state.activeFilter = tag;
+export function toggleLibraryTag(tag) {
+  if (state.selectedLibraryTags.has(tag)) {
+    state.selectedLibraryTags.delete(tag);
+  } else {
+    state.selectedLibraryTags.add(tag);
+  }
+  renderLibrary();
+}
+
+export function clearLibraryTags() {
+  state.selectedLibraryTags.clear();
+  renderLibrary();
+}
+
+export function setLibrarySearch(query) {
+  state.librarySearch = query;
   renderLibrary();
 }
 

@@ -1,7 +1,7 @@
 import './style.css';
 import { initTheme, setTheme, toggleThemePicker } from './theme.js';
 import { loadDrills } from './storage.js';
-import { renderLibrary, setFilter, openQuickAdd, closeQuickAdd, saveQuickAdd } from './library.js';
+import { renderLibrary, toggleLibraryTag, clearLibraryTags, setLibrarySearch, openQuickAdd, closeQuickAdd, saveQuickAdd } from './library.js';
 import { showView } from './navigation.js';
 import { openDrill, stepNav } from './detail.js';
 import { showRandomizer, pickRandomDrill, openPickedDrill } from './randomizer.js';
@@ -25,7 +25,9 @@ import {
 window.showView = showView;
 window.showCreator = showCreator;
 window.openDrill = openDrill;
-window.setFilter = setFilter;
+window.toggleLibraryTag = toggleLibraryTag;
+window.clearLibraryTags = clearLibraryTags;
+window.setLibrarySearch = setLibrarySearch;
 window.openQuickAdd = openQuickAdd;
 window.closeQuickAdd = closeQuickAdd;
 window.saveQuickAdd = saveQuickAdd;

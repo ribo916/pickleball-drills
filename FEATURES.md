@@ -15,14 +15,14 @@ A living tracker for planned improvements. Priority order reflects value for 4 f
 
 | # | Feature | Status | Notes |
 |---|---------|--------|-------|
-| 1 | [Video Embedding](#1-video-embedding) | `[~]` | YouTube/Vimeo iframe in detail view |
-| 2 | [Quick-Add Mode](#2-quick-add-mode) | `[~]` | Name + desc only, full edit later |
-| 3 | [Text Search](#3-text-search) | `[ ]` | Real-time filter by name/description |
+| 1 | [Video Embedding](#1-video-embedding) | `[x]` | YouTube/Vimeo iframe in detail view |
+| 2 | [Quick-Add Mode](#2-quick-add-mode) | `[x]` | Name + desc only, full edit later |
+| 3 | [Text Search](#3-text-search) | `[x]` | Real-time filter by name/description |
 | 4 | [Favorites](#4-favorites) | `[ ]` | Per-device star, localStorage |
 | 5 | [Session Planner](#5-session-planner) | `[ ]` | Queue drills for today's practice |
 | 6 | [Drill Duplication](#6-drill-duplication) | `[ ]` | Clone + open in creator |
 | 7 | [Difficulty Rating](#7-difficulty-rating) | `[ ]` | Beginner / Intermediate / Advanced |
-| 8 | [Multi-Tag Filter in Library](#8-multi-tag-filter-in-library) | `[ ]` | OR logic, matches randomizer |
+| 8 | [Multi-Tag Filter in Library](#8-multi-tag-filter-in-library) | `[x]` | OR logic, matches randomizer |
 | 9 | [Step Titles in Creator](#9-step-titles-in-creator) | `[ ]` | Capture existing `steps[].title` field |
 | 10 | [Sort Options in Library](#10-sort-options-in-library) | `[ ]` | Name A–Z, Newest, Player Count |
 

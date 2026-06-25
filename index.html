@@ -64,6 +64,9 @@
       </div>
       <button class="btn btn-ghost btn-sm quick-add-btn" onclick="openQuickAdd()">+ Quick Add</button>
     </div>
+    <div class="library-search-row">
+      <input class="library-search-input" id="library-search" type="search" placeholder="Search drills…" oninput="setLibrarySearch(this.value)" autocomplete="off" />
+    </div>
   </div>
   <div class="filter-bar" id="filter-bar"></div>
   <div class="drill-grid" id="drill-grid"></div>

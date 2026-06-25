@@ -335,6 +335,21 @@ nav { background: var(--surface); border-bottom: 1px solid var(--border); paddin
   gap: 12px;
 }
 .quick-add-btn { flex-shrink: 0; }
+.library-search-row { margin-top: 12px; }
+.library-search-input {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.library-search-input::placeholder { color: var(--text-muted); }
+.library-search-input:focus { border-color: var(--accent); }
 
 /* NO-STEPS BADGE */
 .no-steps-badge {
