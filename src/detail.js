@@ -101,7 +101,7 @@ export function openDrill(id) {
 
   // Video embed
   const videoSection = document.getElementById('detail-video-section');
-  const embedUrl = drill.videoUrl ? (parseVideoUrl(drill.videoUrl) || drill.videoUrl) : null;
+  const embedUrl = drill.videoUrl ? parseVideoUrl(drill.videoUrl) : null;
   if (embedUrl) {
     videoSection.innerHTML = `
       <div class="video-embed-wrap">
@@ -115,6 +115,9 @@ export function openDrill(id) {
         ></iframe>
       </div>
     `;
+    videoSection.style.display = '';
+  } else if (drill.videoUrl) {
+    videoSection.innerHTML = `<a class="video-link" href="${esc(drill.videoUrl)}" target="_blank" rel="noopener">▶ Watch video</a>`;
     videoSection.style.display = '';
   } else {
     videoSection.innerHTML = '';

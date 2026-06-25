@@ -30,6 +30,10 @@ export function parseVideoUrl(url) {
   m = s.match(/youtube\.com\/embed\/([\w-]{11})/);
   if (m) return `https://www.youtube.com/embed/${m[1]}`;
 
+  // YouTube Shorts: youtube.com/shorts/VIDEO_ID
+  m = s.match(/youtube\.com\/shorts\/([\w-]{11})/);
+  if (m) return `https://www.youtube.com/embed/${m[1]}`;
+
   // Vimeo: vimeo.com/NUMERIC_ID
   m = s.match(/vimeo\.com\/(\d+)/);
   if (m) return `https://player.vimeo.com/video/${m[1]}`;

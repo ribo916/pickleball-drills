@@ -287,6 +287,14 @@ nav { background: var(--surface); border-bottom: 1px solid var(--border); paddin
   display: block;
   border: none;
 }
+.video-link {
+  display: inline-block;
+  margin: 0 16px 16px;
+  color: var(--accent);
+  font-size: 15px;
+  text-decoration: none;
+}
+.video-link:hover { text-decoration: underline; }
 
 /* QUICK-ADD MODAL */
 .quick-add-backdrop {
