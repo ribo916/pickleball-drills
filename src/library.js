@@ -50,8 +50,9 @@ export function renderLibrary() {
   else if (state.librarySort === 'newest') sorted.sort((a, b) => (parseInt(b.id.replace('drill-', '')) || 0) - (parseInt(a.id.replace('drill-', '')) || 0));
   else if (state.librarySort === 'players') sorted.sort((a, b) => a.players - b.players);
 
-  const sortEl = document.getElementById('library-sort');
-  if (sortEl) sortEl.value = state.librarySort;
+  document.querySelectorAll('.sort-pill').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.sort === state.librarySort);
+  });
 
   const grid = document.getElementById('drill-grid');
   if (!sorted.length) {
@@ -72,7 +73,14 @@ export function renderLibrary() {
             ? `<span class="no-steps-badge">no steps</span>`
             : `${d.steps.length} step${d.steps.length === 1 ? '' : 's'}`}
         </div>
-        <button class="session-add-btn${isInSession(d.id) ? ' session-add-btn--in' : ''}" data-session-id="${d.id}" onclick="event.stopPropagation();addToSession('${d.id}')">${isInSession(d.id) ? '✓ Queued' : '＋ Queue'}</button>
+        <div class="card-actions">
+          <button class="card-fav-btn${isFavorite(d.id) ? ' card-fav-btn--on' : ''}" onclick="event.stopPropagation();toggleFavorite('${d.id}')" aria-label="Favorite">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M8 13.5C8 13.5 1.5 9.5 1.5 5.5C1.5 3.567 3.067 2 5 2C6.193 2 7.25 2.6 8 3.5C8.75 2.6 9.807 2 11 2C12.933 2 14.5 3.567 14.5 5.5C14.5 9.5 8 13.5 8 13.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button class="session-add-btn${isInSession(d.id) ? ' session-add-btn--in' : ''}" data-session-id="${d.id}" onclick="event.stopPropagation();addToSession('${d.id}')">${isInSession(d.id) ? '✓ Queued' : '＋ Queue'}</button>
+        </div>
       </div>
     </div>
   `).join('');

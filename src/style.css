@@ -98,8 +98,9 @@ nav { background: var(--surface); border-bottom: 1px solid var(--border); paddin
 .library-header { padding: 24px 16px 16px; }
 .library-header h1 { font-family: var(--font-display); font-weight: 800; font-size: 32px; letter-spacing: 0.02em; line-height: 1; margin-bottom: 4px; }
 .library-header p { color: var(--text-dim); font-size: 14px; }
-.filter-bar { padding: 0 16px 16px; display: flex; gap: 8px; flex-wrap: wrap; }
-.filter-chip { font-family: var(--font-mono); font-size: 11px; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text-dim); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.filter-bar { padding: 0 16px 16px; display: flex; gap: 8px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+.filter-bar::-webkit-scrollbar { display: none; }
+.filter-chip { font-family: var(--font-mono); font-size: 13px; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text-dim); cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
 .filter-chip.active, .filter-chip:hover { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
 .drill-grid { padding: 0 16px 24px; display: grid; gap: 12px; }
 .drill-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.15s; position: relative; overflow: hidden; animation: fadeIn 0.2s ease both; box-shadow: var(--shadow); }
@@ -340,11 +341,13 @@ nav { background: var(--surface); border-bottom: 1px solid var(--border); paddin
 }
 .quick-add-btn { flex-shrink: 0; }
 .library-search-row { margin-top: 12px; }
+.search-wrap { position: relative; display: flex; align-items: center; }
+.search-icon { position: absolute; left: 10px; color: var(--text-muted); pointer-events: none; }
 .library-search-input {
   width: 100%;
   font-family: var(--font-mono);
   font-size: 13px;
-  padding: 8px 12px;
+  padding: 8px 12px 8px 34px;
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background: var(--surface);
@@ -355,10 +358,16 @@ nav { background: var(--surface); border-bottom: 1px solid var(--border); paddin
 .library-search-input::placeholder { color: var(--text-muted); }
 .library-search-input:focus { border-color: var(--accent); }
 
-.library-sort-row { margin-top: 8px; display: flex; align-items: center; gap: 8px; }
-.library-sort-select { font-size: 13px; padding: 6px 10px; width: auto; }
-.fav-filter-btn { font-family: var(--font-mono); font-size: 11px; padding: 6px 12px; border-radius: var(--radius); border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: all 0.15s; }
-.fav-filter-btn:hover, .fav-filter-btn.active { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.library-controls-row { margin-top: 8px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.sort-pills { display: flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; flex-shrink: 0; }
+.sort-pill { font-family: var(--font-mono); font-size: 12px; padding: 6px 12px; background: transparent; border: none; border-right: 1px solid var(--border); color: var(--text-muted); cursor: pointer; transition: background 0.15s, color 0.15s; white-space: nowrap; line-height: 1; }
+.sort-pill:last-child { border-right: none; }
+.sort-pill:hover { background: var(--surface2); color: var(--text); }
+.sort-pill.active { background: var(--accent); color: var(--accent-text); }
+.fav-filter-btn { width: 36px; height: 36px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; transition: border-color 0.15s, color 0.15s, background 0.15s; }
+.fav-filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+.fav-filter-btn.active { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.fav-filter-btn.active svg path { fill: currentColor; }
 
 /* NO-STEPS BADGE */
 .no-steps-badge {
@@ -413,5 +422,10 @@ nav { background: var(--surface); border-bottom: 1px solid var(--border); paddin
 
 /* SESSION ADD BUTTONS (card + detail) */
 .card-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+.card-actions { display: flex; align-items: center; gap: 6px; }
+.card-fav-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 2px 4px; line-height: 1; display: flex; align-items: center; transition: color 0.15s; }
+.card-fav-btn:hover { color: var(--accent); }
+.card-fav-btn--on { color: var(--accent); }
+.card-fav-btn--on svg path { fill: currentColor; }
 .session-add-btn { font-family: var(--font-mono); font-size: 10px; padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
 .session-add-btn:hover, .session-add-btn--in { border-color: var(--accent2); color: var(--accent2); }

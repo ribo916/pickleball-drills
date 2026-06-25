@@ -72,15 +72,25 @@
       <button class="btn btn-ghost btn-sm quick-add-btn" onclick="openQuickAdd()">+ Quick Add</button>
     </div>
     <div class="library-search-row">
-      <input class="library-search-input" id="library-search" type="search" placeholder="Search drills…" oninput="setLibrarySearch(this.value)" autocomplete="off" />
+      <div class="search-wrap">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input class="library-search-input" id="library-search" type="search" placeholder="Search drills…" oninput="setLibrarySearch(this.value)" autocomplete="off" />
+      </div>
     </div>
-    <div class="library-sort-row">
-      <select class="form-select library-sort-select" id="library-sort" onchange="setLibrarySort(this.value)">
-        <option value="name">Name A–Z</option>
-        <option value="newest">Newest First</option>
-        <option value="players">Player Count</option>
-      </select>
-      <button class="fav-filter-btn" id="fav-filter-btn" onclick="toggleFavoritesFilter()">★ Favorites</button>
+    <div class="library-controls-row">
+      <div class="sort-pills">
+        <button class="sort-pill" data-sort="name" onclick="setLibrarySort('name')">Name</button>
+        <button class="sort-pill" data-sort="newest" onclick="setLibrarySort('newest')">Newest</button>
+        <button class="sort-pill" data-sort="players" onclick="setLibrarySort('players')">Players</button>
+      </div>
+      <button class="fav-filter-btn" id="fav-filter-btn" onclick="toggleFavoritesFilter()" aria-label="Toggle favorites filter">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M8 13.5C8 13.5 1.5 9.5 1.5 5.5C1.5 3.567 3.067 2 5 2C6.193 2 7.25 2.6 8 3.5C8.75 2.6 9.807 2 11 2C12.933 2 14.5 3.567 14.5 5.5C14.5 9.5 8 13.5 8 13.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+      </button>
     </div>
   </div>
   <div class="filter-bar" id="filter-bar"></div>

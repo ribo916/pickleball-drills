@@ -4,7 +4,6 @@ import { esc, showToast, parseVideoUrl } from './utils.js';
 import { saveDrills } from './storage.js';
 import { showView } from './navigation.js';
 import { showCreator } from './creator.js';
-import { isFavorite } from './favorites.js';
 import { isInSession } from './session.js';
 
 let currentStepIdx = 0;
@@ -59,7 +58,6 @@ export function openDrill(id) {
 
   document.querySelector('.detail-actions').innerHTML = `
     <div class="detail-actions-primary">
-      <button class="btn btn-ghost fav-btn${isFavorite(id) ? ' fav-btn--on' : ''}" data-favorite-id="${id}" onclick="toggleFavorite('${id}')">★ Favorite</button>
       <button class="btn btn-ghost session-add-btn${isInSession(id) ? ' session-add-btn--in' : ''}" id="detail-session-btn" data-session-id="${id}" onclick="addToSession('${id}')">${isInSession(id) ? '✓ In Session' : '＋ Queue'}</button>
     </div>
     <div class="detail-actions-secondary">
